@@ -228,11 +228,19 @@ export default function DataStream({ fact, visible, accentColor = '--aph-teal' }
         if (glowBottom > 0 && glowTop < h) {
           const gradient = ctx.createLinearGradient(drop.x, Math.max(glowTop, 0), drop.x, Math.min(glowBottom, h));
           gradient.addColorStop(0, `rgba(${drop.colorR},${drop.colorG},${drop.colorB},0)`);
-          gradient.addColorStop(0.3, `rgba(${drop.colorR},${drop.colorG},${drop.colorB},0.03)`);
-          gradient.addColorStop(0.7, `rgba(${drop.colorR},${drop.colorG},${drop.colorB},0.03)`);
+          gradient.addColorStop(0.3, `rgba(${drop.colorR},${drop.colorG},${drop.colorB},0.04)`);
+          gradient.addColorStop(0.7, `rgba(${drop.colorR},${drop.colorG},${drop.colorB},0.04)`);
           gradient.addColorStop(1, `rgba(${drop.colorR},${drop.colorG},${drop.colorB},0)`);
           ctx.fillStyle = gradient;
           ctx.fillRect(drop.x - drop.charSize * 0.4, Math.max(glowTop, 0), drop.charSize * 0.8, Math.min(glowBottom, h) - Math.max(glowTop, 0));
+
+          // Subtle 1px column glow line
+          ctx.strokeStyle = `rgba(${drop.colorR},${drop.colorG},${drop.colorB},0.04)`;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(drop.x, Math.max(glowTop, 0));
+          ctx.lineTo(drop.x, Math.min(glowBottom, h));
+          ctx.stroke();
         }
 
         // ── 4. Draw characters from head going upward ──
@@ -256,22 +264,22 @@ export default function DataStream({ fact, visible, accentColor = '--aph-teal' }
             const headB = Math.round(drop.colorB + (255 - drop.colorB) * 0.5);
 
             ctx.shadowColor = `rgba(${drop.colorR},${drop.colorG},${drop.colorB},0.8)`;
-            ctx.shadowBlur = 8;
-            ctx.fillStyle = `rgba(${headR},${headG},${headB},0.9)`;
+            ctx.shadowBlur = 16;
+            ctx.fillStyle = `rgba(${headR},${headG},${headB},0.95)`;
             ctx.fillText(char, drop.x, charY);
 
             // Reset shadow
             ctx.shadowColor = 'transparent';
             ctx.shadowBlur = 0;
           } else {
-            // ── Trail characters: exponential decay from 0.7 to 0.05 ──
+            // ── Trail characters: exponential decay from 0.91 to 0.1 ──
             // t goes from 0 (just behind head) to 1 (end of trail)
             const t = i / (drop.trailLength - 1);
-            // Exponential decay: alpha = 0.7 * e^(-k*t) where k tunes the curve
-            // We want alpha(0) ~= 0.7 and alpha(1) ~= 0.05
-            // 0.05 = 0.7 * e^(-k) => k = -ln(0.05/0.7) = ln(14) ~= 2.639
-            const k = 2.639;
-            const alpha = 0.7 * Math.exp(-k * t);
+            // Exponential decay: alpha = 0.91 * e^(-k*t) where k tunes the curve
+            // We want alpha(0) ~= 0.91 and alpha(1) ~= 0.1
+            // 0.1 = 0.91 * e^(-k) => k = -ln(0.1/0.91) = ln(9.1) ~= 2.208
+            const k = 2.208;
+            const alpha = 0.91 * Math.exp(-k * t);
 
             ctx.fillStyle = `rgba(${drop.colorR},${drop.colorG},${drop.colorB},${alpha.toFixed(3)})`;
             ctx.fillText(char, drop.x, charY);

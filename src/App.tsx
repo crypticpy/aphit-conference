@@ -36,6 +36,9 @@ export default function App() {
   const [mode, setMode] = useState<AppMode>('attract');
   const [selectedStory, setSelectedStory] = useState<TileStory | null>(null);
 
+  // ── Visited stories tracking ──
+  const [visitedIds, setVisitedIds] = useState<Set<string>>(new Set());
+
   // ── Beat signal for particle pulse ──
   const [beatTimestamp, setBeatTimestamp] = useState(0);
   const handleHeroBeat = useCallback(() => {
@@ -57,6 +60,7 @@ export default function App() {
     setSelectedStory(null);
     setScatterTiles([]);
     setScatterPhase('idle');
+    setVisitedIds(new Set()); // Reset visited on return to attract
     setMode('attract');
   }, []);
 
@@ -104,6 +108,7 @@ export default function App() {
 
       setScatterTiles(tiles);
       setScatterPhase('initial');
+      setVisitedIds(prev => new Set(prev).add(story.id));
 
       // Frame 1: paint overlay tiles at their original grid positions
       // Frame 2: trigger scatter + expand animation
@@ -223,6 +228,7 @@ export default function App() {
           stories={stories}
           onSelectTile={handleSelectTile}
           onBack={goToAttract}
+          visitedIds={visitedIds}
         />
       </div>
 

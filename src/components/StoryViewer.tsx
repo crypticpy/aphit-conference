@@ -84,6 +84,179 @@ function parseHeroStat(raw: string): { target: number; suffix: string } | null {
 }
 
 /* ------------------------------------------------------------------ */
+/*  ProgressTimerBar — thin bar at the very bottom of the screen       */
+/* ------------------------------------------------------------------ */
+function ProgressTimerBar({
+  slideKey,
+  accentVar,
+  durationMs,
+}: {
+  slideKey: number;
+  accentVar: string;
+  durationMs: number;
+}) {
+  const [width, setWidth] = useState('0%');
+  const [transition, setTransition] = useState('none');
+
+  useEffect(() => {
+    // Reset to 0 with no transition
+    setTransition('none');
+    setWidth('0%');
+
+    // Force a reflow then animate to 100%
+    const raf = requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setTransition(`width ${durationMs / 1000}s linear`);
+        setWidth('100%');
+      });
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [slideKey, durationMs]);
+
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: 3,
+        background: 'rgba(255,255,255,0.06)',
+        zIndex: 20,
+        pointerEvents: 'none',
+      }}
+    >
+      <div
+        style={{
+          height: '100%',
+          width,
+          background: `var(${accentVar})`,
+          transition,
+        }}
+      />
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  MiniMapTimeline — vertical dot timeline on the left edge           */
+/* ------------------------------------------------------------------ */
+function MiniMapTimeline({
+  totalSlides,
+  currentSlide,
+  accentVar,
+  onDotClick,
+}: {
+  totalSlides: number;
+  currentSlide: number;
+  accentVar: string;
+  onDotClick: (index: number) => void;
+}) {
+  const dotSize = 8;
+  const activeDotSize = 12;
+  const gap = 22; // vertical spacing between dot centers
+  const totalHeight = (totalSlides - 1) * gap;
+
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        left: 24,
+        top: '50%',
+        transform: 'translateY(-50%)',
+        zIndex: 10,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        height: totalHeight,
+        opacity: 0,
+        animation: 'sv-fadeInSimple 0.4s ease 0.5s forwards',
+      }}
+    >
+      {/* Connecting line */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          bottom: 0,
+          width: 1,
+          background: 'rgba(255,255,255,0.1)',
+        }}
+      />
+      {/* Dots */}
+      {Array.from({ length: totalSlides }).map((_, i) => {
+        const isActive = i === currentSlide;
+        const size = isActive ? activeDotSize : dotSize;
+        return (
+          <button
+            key={i}
+            onClick={(e) => {
+              e.stopPropagation();
+              onDotClick(i);
+            }}
+            style={{
+              position: 'absolute',
+              top: i * gap - size / 2,
+              left: '50%',
+              transform: 'translateX(-50%)',
+              width: size,
+              height: size,
+              borderRadius: '50%',
+              border: 'none',
+              padding: 0,
+              cursor: 'pointer',
+              background: isActive ? `var(${accentVar})` : 'rgba(255,255,255,0.2)',
+              transition: 'all 0.3s ease',
+              zIndex: 1,
+              boxShadow: isActive ? `0 0 8px var(${accentVar})` : 'none',
+            }}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  KeyboardHint — fades in then out in bottom-right                   */
+/* ------------------------------------------------------------------ */
+function KeyboardHint() {
+  const [visible, setVisible] = useState(false);
+  const [fading, setFading] = useState(false);
+
+  useEffect(() => {
+    const showTimer = setTimeout(() => setVisible(true), 1000);
+    const fadeTimer = setTimeout(() => setFading(true), 5000);
+    return () => {
+      clearTimeout(showTimer);
+      clearTimeout(fadeTimer);
+    };
+  }, []);
+
+  if (!visible && !fading) return null;
+
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        bottom: 48,
+        right: 32,
+        zIndex: 10,
+        fontFamily: 'var(--font-heading)',
+        fontSize: 11,
+        color: 'rgba(255,255,255,0.25)',
+        letterSpacing: '0.5px',
+        pointerEvents: 'none',
+        opacity: fading ? 0 : 1,
+        transition: 'opacity 0.8s ease',
+      }}
+    >
+      &larr; &rarr; navigate &middot; Esc back
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /*  StoryViewer — full-screen slideshow                                */
 /* ------------------------------------------------------------------ */
 export default function StoryViewer({ story, onBack }: Props) {
@@ -102,6 +275,10 @@ export default function StoryViewer({ story, onBack }: Props) {
   const backButtonRef = useRef<HTMLButtonElement>(null);
   const navLeftRef = useRef<HTMLButtonElement>(null);
   const navRightRef = useRef<HTMLButtonElement>(null);
+
+  // Determine auto-advance duration for current slide
+  const isLastSlide = currentSlide >= totalSlides - 1;
+  const autoAdvanceDuration = isLastSlide ? 10000 : 30000;
 
   /* ---- navigation helpers ---- */
   const resetAutoTimer = useCallback(() => {
@@ -135,6 +312,13 @@ export default function StoryViewer({ story, onBack }: Props) {
       goTo(currentSlide - 1, 'backward');
     }
   }, [currentSlide, goTo]);
+
+  /* ---- mini-map dot click handler ---- */
+  const handleDotNavigate = useCallback((index: number) => {
+    if (index === currentSlide) return;
+    resetAutoTimer();
+    goTo(index, index > currentSlide ? 'forward' : 'backward');
+  }, [currentSlide, resetAutoTimer, goTo]);
 
   /* ---- auto-advance timer ---- */
   useEffect(() => {
@@ -241,6 +425,10 @@ export default function StoryViewer({ story, onBack }: Props) {
           from { opacity: 0; transform: translateY(18px); }
           to   { opacity: 1; transform: translateY(0); }
         }
+        @keyframes sv-fadeInSimple {
+          from { opacity: 0; }
+          to   { opacity: 1; }
+        }
         @keyframes sv-statPop {
           0%   { opacity: 0; transform: scale(0.85) translateY(12px); }
           60%  { transform: scale(1.02) translateY(-2px); }
@@ -257,6 +445,10 @@ export default function StoryViewer({ story, onBack }: Props) {
         @keyframes sv-dotPulse {
           0%, 100% { transform: scale(1); }
           50% { transform: scale(1.3); }
+        }
+        @keyframes sv-heroGlow {
+          0%, 100% { opacity: 0.1; }
+          50%      { opacity: 0.2; }
         }
       `}</style>
 
@@ -405,7 +597,7 @@ export default function StoryViewer({ story, onBack }: Props) {
           }}
           style={{
             position: 'absolute',
-            left: 24,
+            left: 56,
             top: '50%',
             transform: 'translateY(-50%)',
             zIndex: 10,
@@ -478,6 +670,14 @@ export default function StoryViewer({ story, onBack }: Props) {
         </button>
       )}
 
+      {/* Mini-map timeline (left edge) */}
+      <MiniMapTimeline
+        totalSlides={totalSlides}
+        currentSlide={currentSlide}
+        accentVar={accentVar}
+        onDotClick={handleDotNavigate}
+      />
+
       {/* Progress dots */}
       <div
         style={{
@@ -520,6 +720,16 @@ export default function StoryViewer({ story, onBack }: Props) {
           );
         })}
       </div>
+
+      {/* Progress timer bar at the very bottom */}
+      <ProgressTimerBar
+        slideKey={slideKey}
+        accentVar={accentVar}
+        durationMs={autoAdvanceDuration}
+      />
+
+      {/* Keyboard hint (bottom-right, fades in then out) */}
+      <KeyboardHint />
     </div>
   );
 }
@@ -587,16 +797,33 @@ function HeroSlide({
         </span>
       </div>
 
-      {/* Giant hero stat */}
+      {/* Giant hero stat with pulsing glow */}
       <div
         style={{
+          position: 'relative',
           animation: 'sv-countUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both',
         }}
       >
+        {/* Pulsing glow behind the stat */}
+        <div
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 'calc(100% + 200px)',
+            height: 'calc(100% + 100px)',
+            background: `radial-gradient(ellipse at center, var(${accentVar}), transparent 70%)`,
+            filter: 'blur(40px)',
+            animation: 'sv-heroGlow 3s ease-in-out infinite',
+            pointerEvents: 'none',
+          }}
+        />
         <span
           style={{
+            position: 'relative',
             fontFamily: 'var(--font-heading)',
-            fontSize: 'clamp(72px, 10vw, 120px)',
+            fontSize: 'clamp(80px, 12vw, 140px)',
             fontWeight: 900,
             lineHeight: 1,
             letterSpacing: '-3px',
@@ -674,18 +901,38 @@ function SectionSlide({
   accentVar: string;
 }) {
   const sectionNumber = String(index + 1).padStart(2, '0');
+  // Odd sections (index 0, 2 → sections 1, 3) are left-aligned
+  // Even sections (index 1, 3 → sections 2, 4) are center-aligned
+  const isOddSection = index % 2 === 0; // index 0 = section 1 (odd), index 1 = section 2 (even)
+  const isLeftAligned = isOddSection;
 
   return (
     <div
       style={{
+        position: 'relative',
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center',
-        textAlign: 'center',
+        alignItems: isLeftAligned ? 'flex-start' : 'center',
+        textAlign: isLeftAligned ? 'left' : 'center',
         maxWidth: 800,
         padding: '0 48px',
       }}
     >
+      {/* Decorative accent line on the right for left-aligned sections */}
+      {isLeftAligned && (
+        <div
+          style={{
+            position: 'absolute',
+            right: 0,
+            top: '30%',
+            height: '40%',
+            width: 2,
+            background: `color-mix(in srgb, var(${accentVar}) 20%, transparent)`,
+            borderRadius: 1,
+          }}
+        />
+      )}
+
       {/* Section number */}
       <div
         style={{

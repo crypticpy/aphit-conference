@@ -156,10 +156,10 @@ function ParticlesScene({ fact, visible }: { fact: string; visible: boolean }) {
 
         <p style={{
           fontFamily: 'var(--font-body)',
-          fontSize: 'clamp(24px, 3.5vw, 48px)',
+          fontSize: 'clamp(32px, 4.5vw, 64px)',
           fontWeight: 400,
-          color: 'rgba(255,255,255,0.75)',
-          lineHeight: 1.4,
+          color: 'rgba(255,255,255,0.8)',
+          lineHeight: 1.35,
           letterSpacing: '0.3px',
         }}>
           <WordReveal text={fact} visible={textReady} staggerMs={45} />
@@ -296,7 +296,40 @@ export default function AttractMode({ facts, stories, isTvMode, onInteract, onHe
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(6px); }
         }
+        @keyframes am-edgeGlow {
+          0% { opacity: 0; }
+          30% { opacity: 1; }
+          100% { opacity: 0; }
+        }
+        @keyframes am-flash {
+          0% { opacity: 0.04; }
+          100% { opacity: 0; }
+        }
       `}</style>
+
+      {/* Screen-edge glow pulse on scene transitions */}
+      {transitioning && (
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          zIndex: 8,
+          pointerEvents: 'none',
+          boxShadow: 'inset 0 0 80px 20px rgba(94,198,195,0.08)',
+          animation: 'am-edgeGlow 1.5s ease both',
+        }} />
+      )}
+
+      {/* Brief flash on scene change */}
+      {transitioning && (
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          zIndex: 9,
+          pointerEvents: 'none',
+          background: 'white',
+          animation: 'am-flash 0.3s ease both',
+        }} />
+      )}
 
       {/* ═══ Scene layers — stacked, crossfade via opacity ═══ */}
 

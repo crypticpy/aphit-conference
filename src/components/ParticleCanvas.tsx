@@ -59,8 +59,8 @@ const MODE_CYCLE_DURATION = 2700;   // frames (~45s at 60fps)
 const TRANSITION_DURATION = 150;    // frames (~2.5s crossfade)
 
 // Beat pulse
-const BEAT_DURATION = 48;           // frames (~0.8s)
-const BEAT_FORCE = 3.5;
+const BEAT_DURATION = 60;           // frames (~1s)
+const BEAT_FORCE = 7.0;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Movement functions — pure: (particle, time) => { dx, dy }

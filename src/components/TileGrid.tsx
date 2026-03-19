@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState, useEffect, useCallback } from 'react';
 import {
   Sparkles,
   Globe,
@@ -30,27 +30,107 @@ interface Props {
   stories: TileStory[];
   onSelectTile: (story: TileStory, clickedRect?: TileRect, allRects?: Map<string, TileRect>) => void;
   onBack: () => void;
+  visitedIds?: Set<string>;
 }
 
-export default function TileGrid({ stories, onSelectTile, onBack }: Props) {
+/* ------------------------------------------------------------------ */
+/*  TileCountUp - animates a number from 0 to target                  */
+/* ------------------------------------------------------------------ */
+
+function parseStat(stat: string): { value: number; suffix: string } {
+  const match = stat.match(/^([\d,]+(?:\.\d+)?)\s*(.*)$/);
+  if (!match) return { value: 0, suffix: stat };
+  const numStr = match[1].replace(/,/g, '');
+  return { value: parseFloat(numStr), suffix: match[2] };
+}
+
+function easeOutCubic(t: number): number {
+  return 1 - Math.pow(1 - t, 3);
+}
+
+function TileCountUp({ stat, delay }: { stat: string; delay: number }) {
+  const { value, suffix } = parseStat(stat);
+  const [display, setDisplay] = useState('0' + suffix);
+  const rafRef = useRef<number>(0);
+  const startRef = useRef<number | null>(null);
+  const duration = 1500; // ms
+
+  useEffect(() => {
+    const timeout = window.setTimeout(() => {
+      const animate = (timestamp: number) => {
+        if (startRef.current === null) startRef.current = timestamp;
+        const elapsed = timestamp - startRef.current;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = easeOutCubic(progress);
+        const current = Math.round(eased * value);
+        setDisplay(current.toLocaleString() + suffix);
+        if (progress < 1) {
+          rafRef.current = requestAnimationFrame(animate);
+        }
+      };
+      rafRef.current = requestAnimationFrame(animate);
+    }, delay * 1000);
+
+    return () => {
+      clearTimeout(timeout);
+      cancelAnimationFrame(rafRef.current);
+    };
+  }, [value, suffix, delay]);
+
+  return <>{display}</>;
+}
+
+/* ------------------------------------------------------------------ */
+/*  TileGrid                                                           */
+/* ------------------------------------------------------------------ */
+
+export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: Props) {
   const tileRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
+  const [tiltState, setTiltState] = useState<Record<string, { rx: number; ry: number }>>({});
 
-  const handleTileClick = (story: TileStory) => {
-    const clickedEl = tileRefs.current.get(story.id);
-    let clickedRect: TileRect | undefined;
-    if (clickedEl) {
-      const r = clickedEl.getBoundingClientRect();
-      clickedRect = { x: r.x, y: r.y, width: r.width, height: r.height };
-    }
+  const handleTileClick = useCallback(
+    (story: TileStory) => {
+      const clickedEl = tileRefs.current.get(story.id);
+      let clickedRect: TileRect | undefined;
+      if (clickedEl) {
+        const r = clickedEl.getBoundingClientRect();
+        clickedRect = { x: r.x, y: r.y, width: r.width, height: r.height };
+      }
 
-    // Build a Map of ALL tile rects
-    const allRects = new Map<string, TileRect>();
-    tileRefs.current.forEach((el, id) => {
-      const r = el.getBoundingClientRect();
-      allRects.set(id, { x: r.x, y: r.y, width: r.width, height: r.height });
-    });
+      const allRects = new Map<string, TileRect>();
+      tileRefs.current.forEach((el, id) => {
+        const r = el.getBoundingClientRect();
+        allRects.set(id, { x: r.x, y: r.y, width: r.width, height: r.height });
+      });
 
-    onSelectTile(story, clickedRect, allRects);
+      onSelectTile(story, clickedRect, allRects);
+    },
+    [onSelectTile],
+  );
+
+  /* ---- Keyboard shortcut: keys 1-6 ---- */
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const num = parseInt(e.key, 10);
+      if (num >= 1 && num <= 6) {
+        const story = stories[num - 1];
+        if (story) handleTileClick(story);
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [stories, handleTileClick]);
+
+  /* ---- Mouse tilt handlers ---- */
+  const handleMouseMove = (e: React.MouseEvent<HTMLButtonElement>, storyId: string) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 2 - 1; // -1 to +1
+    const y = ((e.clientY - rect.top) / rect.height) * 2 - 1; // -1 to +1
+    setTiltState((prev) => ({ ...prev, [storyId]: { rx: y * -8, ry: x * 8 } }));
+  };
+
+  const handleMouseLeaveTilt = (storyId: string) => {
+    setTiltState((prev) => ({ ...prev, [storyId]: { rx: 0, ry: 0 } }));
   };
 
   return (
@@ -96,17 +176,23 @@ export default function TileGrid({ stories, onSelectTile, onBack }: Props) {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-4px); }
         }
+        @keyframes tg-stripeGrow {
+          from { height: 0; }
+          to { height: 100%; }
+        }
+        @keyframes tg-checkFadeIn {
+          from { opacity: 0; transform: scale(0.5); }
+          to { opacity: 1; transform: scale(1); }
+        }
         .tg-tile-card {
+          transform-style: preserve-3d;
           transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1),
                       background 0.3s ease,
                       border-color 0.3s ease,
                       box-shadow 0.3s ease;
         }
-        .tg-tile-card:hover {
-          transform: translateY(-6px) scale(1.03);
-        }
         .tg-tile-card:active {
-          transform: scale(0.97);
+          transform: scale(0.97) !important;
         }
       `}</style>
 
@@ -160,6 +246,10 @@ export default function TileGrid({ stories, onSelectTile, onBack }: Props) {
           const accentVar = story.accentColor;
           const delay = 0.15 + index * 0.1;
           const floatDelay = index * 0.5;
+          const tilt = tiltState[story.id] || { rx: 0, ry: 0 };
+          const stripeDelay = 0.4 + index * 0.1;
+          const counterDelay = 0.3 + index * 0.15;
+          const isVisited = visitedIds?.has(story.id) ?? false;
 
           return (
             <button
@@ -188,7 +278,9 @@ export default function TileGrid({ stories, onSelectTile, onBack }: Props) {
                 color: 'inherit',
                 outline: 'none',
                 animation: `tg-tileEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s both`,
+                transform: `translateY(0) scale(1) rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg)`,
               }}
+              onMouseMove={(e) => handleMouseMove(e, story.id)}
               onMouseEnter={(e) => {
                 const el = e.currentTarget;
                 el.style.background = 'rgba(255,255,255,0.08)';
@@ -200,8 +292,51 @@ export default function TileGrid({ stories, onSelectTile, onBack }: Props) {
                 el.style.background = 'rgba(255,255,255,0.05)';
                 el.style.borderColor = 'rgba(255,255,255,0.08)';
                 el.style.boxShadow = 'none';
+                handleMouseLeaveTilt(story.id);
               }}
             >
+              {/* Left accent stripe with grow animation */}
+              <div style={{
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                width: 3,
+                height: '100%',
+                background: `var(${accentVar})`,
+                opacity: 0.6,
+                borderRadius: '3px 0 0 3px',
+                animation: `tg-stripeGrow 0.6s ease-out ${stripeDelay}s both`,
+                transformOrigin: 'top',
+              }} />
+
+              {/* Visited checkmark badge */}
+              {isVisited && (
+                <div style={{
+                  position: 'absolute',
+                  top: 12,
+                  right: 12,
+                  width: 24,
+                  height: 24,
+                  borderRadius: '50%',
+                  background: `color-mix(in srgb, var(${accentVar}) 20%, transparent)`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  animation: 'tg-checkFadeIn 0.3s ease both',
+                  zIndex: 2,
+                }}>
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <path
+                      d="M3 7.5L5.5 10L11 4"
+                      stroke="white"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
+              )}
+
               {/* Accent glow blob */}
               <div style={{
                 position: 'absolute',
@@ -254,7 +389,7 @@ export default function TileGrid({ stories, onSelectTile, onBack }: Props) {
                 {story.tagline}
               </p>
 
-              {/* Hero stat */}
+              {/* Hero stat with count-up animation */}
               <div style={{ marginTop: 18 }}>
                 <div style={{
                   display: 'flex',
@@ -269,7 +404,7 @@ export default function TileGrid({ stories, onSelectTile, onBack }: Props) {
                     letterSpacing: '-0.5px',
                     lineHeight: 1,
                   }}>
-                    {story.heroStat}
+                    <TileCountUp stat={story.heroStat} delay={counterDelay} />
                   </span>
                   {/* Accent underline bar */}
                   <div style={{
@@ -297,11 +432,24 @@ export default function TileGrid({ stories, onSelectTile, onBack }: Props) {
         })}
       </div>
 
+      {/* Keyboard shortcut hint */}
+      <div style={{
+        fontFamily: 'var(--font-heading)',
+        fontSize: 12,
+        color: 'rgba(255,255,255,0.3)',
+        textTransform: 'uppercase',
+        letterSpacing: '2px',
+        marginTop: 20,
+        animation: 'tg-fadeIn 0.5s ease 1.2s both',
+      }}>
+        Press 1&ndash;6 to select a topic
+      </div>
+
       {/* Back button */}
       <button
         onClick={onBack}
         style={{
-          marginTop: 32,
+          marginTop: 12,
           padding: '10px 24px',
           background: 'transparent',
           border: '1px solid rgba(255,255,255,0.15)',

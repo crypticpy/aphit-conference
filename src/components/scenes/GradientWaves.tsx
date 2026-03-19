@@ -26,7 +26,7 @@ const RIBBONS: AuroraRibbon[] = [
   {
     baseY: 0.22,
     width: 180,
-    color: { r: 0, g: 123, b: 131, a: 0.3 },    // APH Teal
+    color: { r: 0, g: 123, b: 131, a: 0.42 },    // APH Teal
     waves: [
       { frequency: 0.0025, amplitude: 55, speed: 0.008, phase: 0 },
       { frequency: 0.0048, amplitude: 30, speed: 0.012, phase: 1.2 },
@@ -38,7 +38,7 @@ const RIBBONS: AuroraRibbon[] = [
   {
     baseY: 0.30,
     width: 150,
-    color: { r: 77, g: 168, b: 218, a: 0.25 },   // Sky Blue
+    color: { r: 77, g: 168, b: 218, a: 0.35 },   // Sky Blue
     waves: [
       { frequency: 0.0032, amplitude: 45, speed: 0.010, phase: 0.7 },
       { frequency: 0.0055, amplitude: 25, speed: 0.014, phase: 2.1 },
@@ -50,7 +50,7 @@ const RIBBONS: AuroraRibbon[] = [
   {
     baseY: 0.38,
     width: 130,
-    color: { r: 94, g: 198, b: 195, a: 0.2 },    // Light Teal
+    color: { r: 94, g: 198, b: 195, a: 0.28 },    // Light Teal
     waves: [
       { frequency: 0.0020, amplitude: 50, speed: 0.009, phase: 1.5 },
       { frequency: 0.0042, amplitude: 35, speed: 0.013, phase: 3.3 },
@@ -62,7 +62,7 @@ const RIBBONS: AuroraRibbon[] = [
   {
     baseY: 0.26,
     width: 110,
-    color: { r: 107, g: 76, b: 154, a: 0.15 },   // Purple
+    color: { r: 107, g: 76, b: 154, a: 0.21 },   // Purple
     waves: [
       { frequency: 0.0028, amplitude: 40, speed: 0.007, phase: 2.0 },
       { frequency: 0.0050, amplitude: 20, speed: 0.011, phase: 4.5 },
@@ -254,7 +254,7 @@ export default function GradientWaves({ fact, visible }: Props) {
         // ── Pass 2: Additive glow (bloom effect) ──
         ctx.save();
         ctx.globalCompositeOperation = 'lighter';
-        ctx.globalAlpha = 0.35;
+        ctx.globalAlpha = 0.455;
 
         // Redraw the ribbon path for the glow
         ctx.beginPath();
@@ -297,7 +297,7 @@ export default function GradientWaves({ fact, visible }: Props) {
         // ── Pass 3: Bright bottom-edge highlight (core emission line) ──
         ctx.save();
         ctx.globalCompositeOperation = 'lighter';
-        ctx.globalAlpha = 0.2;
+        ctx.globalAlpha = 0.3;
 
         ctx.beginPath();
         ctx.moveTo(bottomEdge[0].x, bottomEdge[0].y);
