@@ -1,0 +1,122 @@
+/* ============================================
+   APHIT Conference Table — Global Styles
+   Brand: Austin Public Health Guidelines 2025
+   ============================================ */
+
+:root {
+  /* === PRIMARY === */
+  --aph-navy: #003054;
+  --aph-navy-rgb: 0, 48, 84;
+  --aph-teal: #007B83;
+  --aph-teal-rgb: 0, 123, 131;
+  --aph-white: #FFFFFF;
+
+  /* === SECONDARY === */
+  --aph-sky-blue: #4DA8DA;
+  --aph-sky-blue-rgb: 77, 168, 218;
+  --aph-light-teal: #5EC6C3;
+  --aph-light-teal-rgb: 94, 198, 195;
+  --aph-green: #78BE20;
+  --aph-green-rgb: 120, 190, 32;
+  --aph-gold: #F2A900;
+  --aph-gold-rgb: 242, 169, 0;
+
+  /* === NEUTRALS === */
+  --aph-dark-gray: #333333;
+  --aph-medium-gray: #666666;
+  --aph-light-gray: #E8E8E8;
+  --aph-off-white: #F5F5F5;
+
+  /* === EXTENDED === */
+  --aph-coral: #E8604C;
+  --aph-coral-rgb: 232, 96, 76;
+  --aph-purple: #6B4C9A;
+  --aph-purple-rgb: 107, 76, 154;
+  --aph-warm-gray: #B5A898;
+
+  /* === TYPOGRAPHY === */
+  --font-heading: 'Montserrat', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --font-body: 'Open Sans', 'Segoe UI', Helvetica, Arial, sans-serif;
+
+  /* === SPACING === */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 48px;
+  --spacing-3xl: 64px;
+
+  /* === BORDERS & RADIUS === */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 16px;
+  --shadow-card: 0 4px 16px rgba(0, 48, 84, 0.12);
+  --shadow-card-hover: 0 12px 40px rgba(0, 48, 84, 0.24);
+  --shadow-glow-teal: 0 0 60px rgba(0, 123, 131, 0.25);
+}
+
+/* === RESET & BASE === */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--aph-white);
+  background: var(--aph-navy);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  cursor: default;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  border: none;
+  max-width: none;
+  margin: 0;
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--aph-white);
+}
+
+p {
+  margin: 0;
+}
+
+/* === SCROLLBAR (for story viewer) === */
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 123, 131, 0.3);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 123, 131, 0.5);
+}
+
+/* === SELECTION === */
+::selection {
+  background: rgba(0, 123, 131, 0.3);
+  color: var(--aph-white);
+}
