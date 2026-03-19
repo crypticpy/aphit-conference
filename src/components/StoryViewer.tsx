@@ -206,7 +206,7 @@ function MiniMapTimeline({
               padding: 0,
               cursor: 'pointer',
               background: isActive ? `var(${accentVar})` : 'rgba(255,255,255,0.2)',
-              transition: 'all 0.3s ease',
+              transition: 'all 0.3s ease-out',
               zIndex: 1,
               boxShadow: isActive ? `0 0 8px var(${accentVar})` : 'none',
             }}
@@ -379,14 +379,14 @@ export default function StoryViewer({ story, onBack }: Props) {
       return {
         transform: `translateX(${tx}px)`,
         opacity: 0,
-        transition: 'transform 500ms cubic-bezier(0.16, 1, 0.3, 1), opacity 500ms cubic-bezier(0.16, 1, 0.3, 1)',
+        transition: 'transform 500ms cubic-bezier(0.22, 1, 0.36, 1), opacity 500ms cubic-bezier(0.22, 1, 0.36, 1)',
       };
     }
     // Entering: start offset, animate to center
     return {
       transform: 'translateX(0)',
       opacity: 1,
-      transition: 'transform 500ms cubic-bezier(0.16, 1, 0.3, 1), opacity 500ms cubic-bezier(0.16, 1, 0.3, 1)',
+      transition: 'transform 500ms cubic-bezier(0.22, 1, 0.36, 1), opacity 500ms cubic-bezier(0.22, 1, 0.36, 1)',
     };
   };
 
@@ -438,6 +438,11 @@ export default function StoryViewer({ story, onBack }: Props) {
           from { opacity: 0; transform: translateY(30px) scale(0.9); }
           to   { opacity: 1; transform: translateY(0) scale(1); }
         }
+        @keyframes sv-dotPulseIn {
+          0%   { transform: scale(1); }
+          40%  { transform: scale(1.3); }
+          100% { transform: scale(1); }
+        }
         @keyframes sv-dividerGrow {
           from { width: 0; }
           to   { width: 80px; }
@@ -458,7 +463,8 @@ export default function StoryViewer({ story, onBack }: Props) {
           position: 'absolute',
           inset: 0,
           background: `
-            radial-gradient(ellipse at 20% 0%, color-mix(in srgb, var(${accentVar}) 8%, transparent) 0%, transparent 60%),
+            radial-gradient(ellipse at 30% 20%, color-mix(in srgb, var(${accentVar}) 18%, transparent) 0%, transparent 70%),
+            radial-gradient(ellipse at 70% 80%, color-mix(in srgb, var(${accentVar}) 10%, transparent) 0%, transparent 60%),
             radial-gradient(ellipse at 80% 100%, rgba(0,48,84,0.3) 0%, transparent 60%),
             var(--aph-navy)
           `,
@@ -713,8 +719,12 @@ export default function StoryViewer({ story, onBack }: Props) {
                 background: isActive
                   ? `var(${accentVar})`
                   : 'rgba(255,255,255,0.2)',
-                transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+                transition: 'all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55)',
                 opacity: isActive ? 1 : 0.6,
+                boxShadow: isActive
+                  ? `inset 0 1px 3px rgba(255,255,255,0.25), 0 0 8px color-mix(in srgb, var(${accentVar}) 40%, transparent)`
+                  : 'none',
+                animation: isActive ? 'sv-dotPulseIn 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55)' : 'none',
               }}
             />
           );
@@ -801,7 +811,7 @@ function HeroSlide({
       <div
         style={{
           position: 'relative',
-          animation: 'sv-countUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both',
+          animation: 'sv-countUp 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s both',
         }}
       >
         {/* Pulsing glow behind the stat */}
@@ -822,7 +832,8 @@ function HeroSlide({
         <span
           style={{
             position: 'relative',
-            fontFamily: 'var(--font-heading)',
+            fontFamily: 'var(--font-display)',
+            fontStyle: 'normal',
             fontSize: 'clamp(80px, 12vw, 140px)',
             fontWeight: 900,
             lineHeight: 1,
@@ -952,9 +963,9 @@ function SectionSlide({
       {/* Section title */}
       <h2
         style={{
-          fontFamily: 'var(--font-heading)',
+          fontFamily: 'var(--font-display)',
           fontSize: 'clamp(24px, 3.5vw, 40px)',
-          fontWeight: 700,
+          fontWeight: 400,
           color: 'var(--aph-white)',
           lineHeight: 1.2,
           marginBottom: 24,
@@ -965,40 +976,23 @@ function SectionSlide({
         {section.title}
       </h2>
 
-      {/* Body text */}
-      <p
-        style={{
-          fontFamily: 'var(--font-body)',
-          fontSize: 'clamp(16px, 1.8vw, 22px)',
-          fontWeight: 400,
-          color: 'rgba(255,255,255,0.7)',
-          lineHeight: 1.7,
-          maxWidth: 680,
-          marginBottom: section.stat ? 36 : 0,
-          animation: 'sv-fadeIn 0.6s ease 150ms both',
-        }}
-      >
-        {section.body}
-      </p>
-
-      {/* Stat badge */}
+      {/* Hero stat for this section — displayed prominently before body text */}
       {section.stat && (
         <div
           style={{
-            display: 'inline-flex',
-            alignItems: 'baseline',
-            gap: 12,
-            padding: '16px 28px',
-            background: `color-mix(in srgb, var(${accentVar}) 10%, transparent)`,
-            borderRadius: 14,
-            border: `1px solid color-mix(in srgb, var(${accentVar}) 18%, transparent)`,
-            animation: 'sv-statPop 0.7s cubic-bezier(0.16, 1, 0.3, 1) 300ms both',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: isLeftAligned ? 'flex-start' : 'center',
+            gap: 6,
+            marginBottom: 28,
+            animation: 'sv-statPop 0.7s cubic-bezier(0.22, 1, 0.36, 1) 100ms both',
           }}
         >
           <span
             style={{
-              fontFamily: 'var(--font-heading)',
-              fontSize: 48,
+              fontFamily: 'var(--font-display)',
+              fontStyle: 'normal',
+              fontSize: 64,
               fontWeight: 800,
               color: `var(${accentVar})`,
               letterSpacing: '-1px',
@@ -1010,10 +1004,10 @@ function SectionSlide({
           <span
             style={{
               fontFamily: 'var(--font-body)',
-              fontSize: 14,
-              color: 'rgba(255,255,255,0.5)',
+              fontSize: 13,
+              color: 'rgba(255,255,255,0.45)',
               textTransform: 'uppercase',
-              letterSpacing: '1px',
+              letterSpacing: '1.5px',
               fontWeight: 600,
             }}
           >
@@ -1021,6 +1015,25 @@ function SectionSlide({
           </span>
         </div>
       )}
+
+      {/* Body text — clamped to 2 lines for scannability */}
+      <div
+        style={{
+          fontFamily: 'var(--font-body)',
+          fontSize: 'clamp(16px, 1.8vw, 22px)',
+          fontWeight: 400,
+          color: 'rgba(255,255,255,0.7)',
+          lineHeight: 1.7,
+          maxWidth: 680,
+          display: '-webkit-box',
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: 'vertical' as const,
+          overflow: 'hidden',
+          animation: 'sv-fadeIn 0.6s ease 150ms both',
+        }}
+      >
+        {section.body}
+      </div>
     </div>
   );
 }

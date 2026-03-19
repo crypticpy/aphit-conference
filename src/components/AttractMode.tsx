@@ -129,12 +129,13 @@ function ParticlesScene({ fact, visible }: { fact: string; visible: boolean }) {
         perspective: '800px',
       }}>
         <h1 style={{
-          fontFamily: 'var(--font-heading)',
-          fontSize: 'clamp(40px, 6vw, 72px)',
-          fontWeight: 800,
+          fontFamily: 'var(--font-display)',
+          fontSize: 'clamp(42px, 6.5vw, 76px)',
+          fontWeight: 400,
           lineHeight: 1.15,
-          letterSpacing: '-1px',
+          letterSpacing: '-0.5px',
           marginBottom: 24,
+          fontStyle: 'italic',
         }}>
           <span style={{ display: 'block' }}>
             <TitleReveal line="Invisible Infrastructure," delay={400} />
@@ -484,7 +485,7 @@ export default function AttractMode({ facts, stories, isTvMode, onInteract, onHe
             color: 'var(--aph-light-teal)',
             animation: 'pulse 3s ease-in-out infinite',
           }}>
-            Click anywhere to explore
+            6 stories · 1,200 users · Touch to discover
           </div>
           <div style={{
             marginTop: 12,

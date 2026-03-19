@@ -35,8 +35,9 @@
   --aph-warm-gray: #B5A898;
 
   /* === TYPOGRAPHY === */
-  --font-heading: 'Montserrat', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
-  --font-body: 'Open Sans', 'Segoe UI', Helvetica, Arial, sans-serif;
+  --font-heading: 'DM Sans', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --font-display: 'DM Serif Display', Georgia, 'Times New Roman', serif;
+  --font-body: 'DM Sans', 'Segoe UI', Helvetica, Arial, sans-serif;
 
   /* === SPACING === */
   --spacing-xs: 4px;
