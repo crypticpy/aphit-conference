@@ -206,7 +206,7 @@ function MiniMapTimeline({
               padding: 0,
               cursor: 'pointer',
               background: isActive ? `var(${accentVar})` : 'rgba(255,255,255,0.2)',
-              transition: 'all 0.3s ease-out',
+              transition: 'width 0.3s ease-out, height 0.3s ease-out, background 0.3s ease-out, box-shadow 0.3s ease-out',
               zIndex: 1,
               boxShadow: isActive ? `0 0 8px var(${accentVar})` : 'none',
             }}
@@ -494,7 +494,7 @@ export default function StoryViewer({ story, onBack }: Props) {
           alignItems: 'center',
           justifyContent: 'space-between',
           padding: '20px 48px',
-          borderBottom: '1px solid rgba(255,255,255,0.06)',
+          background: 'rgba(0,20,40,0.4)',
           animation: 'sv-topBarSlide 0.4s ease 0.1s both',
         }}
       >
@@ -512,13 +512,13 @@ export default function StoryViewer({ story, onBack }: Props) {
             padding: '8px 16px',
             background: 'rgba(255,255,255,0.06)',
             border: '1px solid rgba(255,255,255,0.1)',
-            borderRadius: 8,
+            borderRadius: 24,
             color: 'rgba(255,255,255,0.7)',
             fontFamily: 'var(--font-heading)',
             fontSize: 13,
             fontWeight: 500,
             cursor: 'pointer',
-            transition: 'all 0.2s ease',
+            transition: 'background 0.2s ease, color 0.15s ease',
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
@@ -565,7 +565,7 @@ export default function StoryViewer({ story, onBack }: Props) {
             fontFamily: 'var(--font-heading)',
             fontSize: 13,
             fontWeight: 500,
-            color: 'rgba(255,255,255,0.4)',
+            color: 'var(--aph-warm-gray)',
             letterSpacing: '1px',
             minWidth: 48,
             textAlign: 'right',
@@ -609,7 +609,7 @@ export default function StoryViewer({ story, onBack }: Props) {
             zIndex: 10,
             width: 48,
             height: 48,
-            borderRadius: '50%',
+            borderRadius: 8,
             border: '1px solid rgba(255,255,255,0.1)',
             background: 'rgba(255,255,255,0.06)',
             color: 'rgba(255,255,255,0.5)',
@@ -617,7 +617,7 @@ export default function StoryViewer({ story, onBack }: Props) {
             alignItems: 'center',
             justifyContent: 'center',
             cursor: 'pointer',
-            transition: 'all 0.25s ease',
+            transition: 'background 0.2s ease, border-color 0.2s ease, color 0.15s ease',
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.background = `color-mix(in srgb, var(${accentVar}) 20%, transparent)`;
@@ -651,7 +651,7 @@ export default function StoryViewer({ story, onBack }: Props) {
             zIndex: 10,
             width: 48,
             height: 48,
-            borderRadius: '50%',
+            borderRadius: 8,
             border: '1px solid rgba(255,255,255,0.1)',
             background: 'rgba(255,255,255,0.06)',
             color: 'rgba(255,255,255,0.5)',
@@ -659,7 +659,7 @@ export default function StoryViewer({ story, onBack }: Props) {
             alignItems: 'center',
             justifyContent: 'center',
             cursor: 'pointer',
-            transition: 'all 0.25s ease',
+            transition: 'background 0.2s ease, border-color 0.2s ease, color 0.15s ease',
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.background = `color-mix(in srgb, var(${accentVar}) 20%, transparent)`;
@@ -719,7 +719,7 @@ export default function StoryViewer({ story, onBack }: Props) {
                 background: isActive
                   ? `var(${accentVar})`
                   : 'rgba(255,255,255,0.2)',
-                transition: 'all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55)',
+                transition: 'width 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55), background 0.3s ease, opacity 0.3s ease',
                 opacity: isActive ? 1 : 0.6,
                 boxShadow: isActive
                   ? `inset 0 1px 3px rgba(255,255,255,0.25), 0 0 8px color-mix(in srgb, var(${accentVar}) 40%, transparent)`
@@ -783,7 +783,7 @@ function HeroSlide({
           style={{
             width: 56,
             height: 56,
-            borderRadius: 16,
+            borderRadius: 10,
             background: `color-mix(in srgb, var(${accentVar}) 12%, transparent)`,
             border: `1px solid color-mix(in srgb, var(${accentVar}) 20%, transparent)`,
             display: 'flex',
@@ -860,7 +860,7 @@ function HeroSlide({
           fontWeight: 600,
           textTransform: 'uppercase',
           letterSpacing: '3px',
-          color: 'rgba(255,255,255,0.6)',
+          color: 'var(--aph-warm-gray)',
           marginTop: 16,
           animation: 'sv-fadeIn 0.6s ease 0.35s both',
         }}
@@ -873,7 +873,7 @@ function HeroSlide({
         style={{
           fontFamily: 'var(--font-body)',
           fontSize: 18,
-          color: 'rgba(255,255,255,0.6)',
+          color: 'var(--aph-warm-gray)',
           lineHeight: 1.6,
           marginTop: 24,
           maxWidth: 500,
@@ -886,11 +886,11 @@ function HeroSlide({
       {/* Accent divider */}
       <div
         style={{
-          height: 3,
+          height: 4,
           borderRadius: 2,
           background: `var(${accentVar})`,
           marginTop: 36,
-          opacity: 0.5,
+          boxShadow: `0 0 12px color-mix(in srgb, var(${accentVar}) 50%, transparent), 0 0 4px var(${accentVar})`,
           animation: 'sv-dividerGrow 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.65s both',
           overflow: 'hidden',
         }}
@@ -937,8 +937,8 @@ function SectionSlide({
             right: 0,
             top: '30%',
             height: '40%',
-            width: 2,
-            background: `color-mix(in srgb, var(${accentVar}) 20%, transparent)`,
+            width: 3,
+            background: `color-mix(in srgb, var(${accentVar}) 30%, transparent)`,
             borderRadius: 1,
           }}
         />
@@ -947,11 +947,12 @@ function SectionSlide({
       {/* Section number */}
       <div
         style={{
-          fontFamily: 'var(--font-heading)',
+          fontFamily: 'var(--font-display)',
           fontSize: 60,
-          fontWeight: 200,
-          color: `var(${accentVar})`,
-          opacity: 0.25,
+          fontWeight: 400,
+          fontStyle: 'italic' as const,
+          color: 'var(--aph-warm-gray)',
+          opacity: 0.3,
           lineHeight: 1,
           marginBottom: 24,
           animation: 'sv-fadeIn 0.6s ease 0ms both',
@@ -1005,7 +1006,7 @@ function SectionSlide({
             style={{
               fontFamily: 'var(--font-body)',
               fontSize: 13,
-              color: 'rgba(255,255,255,0.45)',
+              color: 'var(--aph-gold)',
               textTransform: 'uppercase',
               letterSpacing: '1.5px',
               fontWeight: 600,
@@ -1016,19 +1017,15 @@ function SectionSlide({
         </div>
       )}
 
-      {/* Body text — clamped to 2 lines for scannability */}
+      {/* Body text — shows fully, naturally caps at ~3 lines */}
       <div
         style={{
           fontFamily: 'var(--font-body)',
-          fontSize: 'clamp(16px, 1.8vw, 22px)',
+          fontSize: 'clamp(15px, 1.6vw, 20px)',
           fontWeight: 400,
-          color: 'rgba(255,255,255,0.7)',
+          color: 'rgba(255,255,255,0.8)',
           lineHeight: 1.7,
           maxWidth: 680,
-          display: '-webkit-box',
-          WebkitLineClamp: 2,
-          WebkitBoxOrient: 'vertical' as const,
-          overflow: 'hidden',
           animation: 'sv-fadeIn 0.6s ease 150ms both',
         }}
       >

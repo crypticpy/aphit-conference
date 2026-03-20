@@ -175,8 +175,9 @@ export default function App() {
         position: 'fixed',
         inset: 0,
         background: `
-          radial-gradient(ellipse at 20% 20%, rgba(0,123,131,0.08) 0%, transparent 50%),
-          radial-gradient(ellipse at 80% 80%, rgba(107,76,154,0.06) 0%, transparent 50%),
+          radial-gradient(ellipse at 20% 20%, rgba(0,123,131,0.10) 0%, transparent 50%),
+          radial-gradient(ellipse at 80% 80%, rgba(107,76,154,0.08) 0%, transparent 50%),
+          radial-gradient(ellipse at 50% 100%, rgba(242,169,0,0.04) 0%, transparent 40%),
           radial-gradient(ellipse at 50% 50%, transparent 0%, rgba(0,20,40,0.5) 100%)
         `,
         pointerEvents: 'none',
@@ -286,9 +287,9 @@ export default function App() {
                     width: isScattering ? '100vw' : tile.rect.width,
                     height: isScattering ? '100vh' : tile.rect.height,
                     borderRadius: isScattering ? 0 : 20,
-                    background: `color-mix(in srgb, var(${tile.accentColor}) 12%, var(--aph-navy))`,
+                    background: 'var(--aph-navy)',
                     border: `1px solid color-mix(in srgb, var(${tile.accentColor}) 20%, transparent)`,
-                    transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+                    transition: 'left 0.6s cubic-bezier(0.16,1,0.3,1), top 0.6s cubic-bezier(0.16,1,0.3,1), width 0.6s cubic-bezier(0.16,1,0.3,1), height 0.6s cubic-bezier(0.16,1,0.3,1), border-radius 0.5s ease, opacity 0.3s ease',
                     opacity: isDone ? 0 : 1,
                   }}
                 />
@@ -305,8 +306,8 @@ export default function App() {
                   top: tile.rect.y,
                   width: tile.rect.width,
                   height: tile.rect.height,
-                  borderRadius: 20,
-                  background: 'rgba(255,255,255,0.05)',
+                  borderRadius: 10,
+                  background: 'rgba(0,30,54,0.7)',
                   border: '1px solid rgba(255,255,255,0.08)',
                   transform: isScattering
                     ? `translate(${tile.tx}px, ${tile.ty}px) rotate(${tile.rotate}deg) scale(0.6)`

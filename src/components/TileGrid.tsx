@@ -249,6 +249,27 @@ function TileCountUp({ stat, delay }: { stat: string; delay: number }) {
 }
 
 /* ------------------------------------------------------------------ */
+/*  Helper: get tile-specific styles                                   */
+/* ------------------------------------------------------------------ */
+
+function getTileBackground(storyId: string, index: number, isWide: boolean): string {
+  if (index === 0) return 'var(--aph-teal)';
+  if (storyId === 'security') return 'rgba(0,20,40,0.85)';
+  return 'rgba(0,30,54,0.7)';
+}
+
+function getTileBorder(storyId: string, index: number): string {
+  if (index === 0) return '1px solid var(--aph-teal)';
+  if (storyId === 'security') return 'none';
+  return '1px solid rgba(255,255,255,0.08)';
+}
+
+function getTileBorderLeft(storyId: string): string | undefined {
+  if (storyId === 'security') return '2px solid var(--aph-coral)';
+  return undefined;
+}
+
+/* ------------------------------------------------------------------ */
 /*  TileGrid                                                           */
 /* ------------------------------------------------------------------ */
 
@@ -345,9 +366,9 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-4px); }
         }
-        @keyframes tg-stripeGrow {
-          from { height: 0; }
-          to { height: 100%; }
+        @keyframes tg-gradientBarGrow {
+          from { transform: scaleX(0); }
+          to { transform: scaleX(1); }
         }
         @keyframes tg-checkFadeIn {
           from { opacity: 0; transform: scale(0.5); }
@@ -359,10 +380,9 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
         }
         .tg-tile-card {
           transform-style: preserve-3d;
-          transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1),
-                      background 0.3s ease,
-                      border-color 0.3s ease,
-                      box-shadow 0.3s ease;
+          transition: transform 0.25s ease,
+                      background 0.35s ease,
+                      border-width 0.2s ease;
         }
         .tg-tile-card:active {
           transform: scale(0.97) !important;
@@ -370,12 +390,22 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
         .tg-tile-card:not(:hover) {
           animation-name: tg-tileEntrance, tg-breathe !important;
         }
+        /* Top gradient bar opacity transitions */
+        .tg-top-gradient-bar {
+          transition: opacity 0.25s ease;
+        }
+        .tg-tile-card:hover .tg-top-gradient-bar {
+          opacity: 1 !important;
+        }
       `}</style>
 
-      {/* Header */}
+      {/* Header — left-aligned */}
       <div style={{
-        textAlign: 'center',
+        textAlign: 'left',
         marginBottom: 40,
+        width: '100%',
+        maxWidth: 1100,
+        paddingLeft: 0,
         animation: 'tg-headerEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both',
       }}>
         <div style={{
@@ -401,7 +431,7 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
         <p style={{
           fontFamily: 'var(--font-body)',
           fontSize: 15,
-          color: 'rgba(255,255,255,0.5)',
+          color: 'var(--aph-warm-gray)',
           marginTop: 8,
         }}>
           Select a topic to learn more
@@ -423,12 +453,30 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
           const delay = 0.15 + index * 0.1;
           const floatDelay = index * 0.5;
           const tilt = tiltState[story.id] || { rx: 0, ry: 0 };
-          const stripeDelay = 0.4 + index * 0.1;
+          const gradientBarDelay = 0.4 + index * 0.1;
           const counterDelay = 0.3 + index * 0.15;
           const isVisited = visitedIds?.has(story.id) ?? false;
           const isWide = index === 0 || index === 5;
           const isHovered = hoveredId === story.id;
           const breatheDelay = index * 0.7;
+
+          const isFeaturedAI = index === 0;
+          const isSecurity = story.id === 'security';
+
+          // Per-tile background
+          const tileBg = getTileBackground(story.id, index, isWide);
+          const tileBorder = getTileBorder(story.id, index);
+          const tileBorderLeft = getTileBorderLeft(story.id);
+
+          // Per-tile text colors
+          const iconColor = isFeaturedAI ? '#FFFFFF' : `var(${accentVar})`;
+          const statColor = isFeaturedAI ? '#FFFFFF' : `var(${accentVar})`;
+          const statLabelColor = isFeaturedAI ? 'var(--aph-gold)' : 'var(--aph-gold)';
+          const taglineColor = isFeaturedAI ? 'rgba(255,255,255,0.8)' : 'var(--aph-warm-gray)';
+
+          // Radius hierarchy
+          const borderRadius = isWide ? 16 : 10;
+          const iconBorderRadius = 10;
 
           return (
             <button
@@ -444,14 +492,13 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
                 flexDirection: isWide ? 'row' : 'column',
                 alignItems: isWide ? 'center' : 'flex-start',
                 padding: 32,
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.08)',
-                borderRadius: 20,
+                background: tileBg,
+                border: tileBorder,
+                borderLeft: tileBorderLeft || undefined,
+                borderRadius,
                 cursor: 'pointer',
                 textAlign: 'left',
                 overflow: 'hidden',
-                backdropFilter: 'blur(16px)',
-                WebkitBackdropFilter: 'blur(16px)',
                 minHeight: isWide ? 160 : 220,
                 fontFamily: 'inherit',
                 color: 'inherit',
@@ -468,34 +515,63 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
               onMouseEnter={(e) => {
                 setHoveredId(story.id);
                 const el = e.currentTarget;
-                el.style.background = 'rgba(255,255,255,0.08)';
-                el.style.borderColor = `var(${accentVar})`;
-                el.style.boxShadow = `0 0 40px color-mix(in srgb, var(${accentVar}) 15%, transparent), 0 12px 40px rgba(0,48,84,0.3)`;
-                el.style.transform = `translateY(0) scale(1) rotateX(0deg) rotateY(0deg)`;
+
+                if (isFeaturedAI) {
+                  // AI tile: darken slightly, subtle lift, no border glow
+                  el.style.filter = 'brightness(1.1)';
+                  el.style.transform = `translateY(-2px) scale(1) rotateX(0deg) rotateY(0deg)`;
+                  el.style.boxShadow = 'none';
+                } else if (isSecurity) {
+                  // Security tile: coral left border thickens, background lightens
+                  el.style.borderLeft = '4px solid var(--aph-coral)';
+                  el.style.background = 'rgba(0,25,50,0.85)';
+                  el.style.transform = `translateY(0) scale(1) rotateX(0deg) rotateY(0deg)`;
+                  el.style.boxShadow = 'none';
+                } else {
+                  // Other tiles: top gradient bar becomes fully opaque (via CSS class),
+                  // subtle box-shadow in accent color
+                  el.style.boxShadow = `0 4px 24px color-mix(in srgb, var(${accentVar}) 25%, transparent)`;
+                  el.style.transform = `translateY(0) scale(1) rotateX(0deg) rotateY(0deg)`;
+                }
               }}
               onMouseLeave={(e) => {
                 setHoveredId(null);
                 const el = e.currentTarget;
-                el.style.background = 'rgba(255,255,255,0.05)';
-                el.style.borderColor = 'rgba(255,255,255,0.08)';
-                el.style.boxShadow = 'none';
-                el.style.transform = '';
+
+                if (isFeaturedAI) {
+                  el.style.filter = '';
+                  el.style.transform = '';
+                  el.style.boxShadow = '';
+                } else if (isSecurity) {
+                  el.style.borderLeft = '2px solid var(--aph-coral)';
+                  el.style.background = 'rgba(0,20,40,0.85)';
+                  el.style.transform = '';
+                  el.style.boxShadow = '';
+                } else {
+                  el.style.boxShadow = 'none';
+                  el.style.transform = '';
+                }
                 handleMouseLeaveTilt(story.id);
               }}
             >
-              {/* Left accent stripe with grow animation */}
-              <div style={{
-                position: 'absolute',
-                left: 0,
-                top: 0,
-                width: 3,
-                height: '100%',
-                background: `var(${accentVar})`,
-                opacity: 0.6,
-                borderRadius: '3px 0 0 3px',
-                animation: `tg-stripeGrow 0.6s ease-out ${stripeDelay}s both`,
-                transformOrigin: 'top',
-              }} />
+              {/* Top-edge gradient bar (replaces left accent stripe) */}
+              {!isFeaturedAI && (
+                <div
+                  className="tg-top-gradient-bar"
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: 3,
+                    background: `linear-gradient(to right, var(${accentVar}), transparent)`,
+                    opacity: 0.6,
+                    borderRadius: `${borderRadius}px ${borderRadius}px 0 0`,
+                    animation: `tg-gradientBarGrow 0.6s ease-out ${gradientBarDelay}s both`,
+                    transformOrigin: 'left',
+                  }}
+                />
+              )}
 
               {/* Visited checkmark badge */}
               {isVisited && (
@@ -535,8 +611,10 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
                   <div style={{
                     width: 52,
                     height: 52,
-                    borderRadius: 14,
-                    background: `color-mix(in srgb, var(${accentVar}) 15%, transparent)`,
+                    borderRadius: iconBorderRadius,
+                    background: isFeaturedAI
+                      ? 'rgba(255,255,255,0.15)'
+                      : `color-mix(in srgb, var(${accentVar}) 15%, transparent)`,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -544,7 +622,7 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
                     marginRight: 28,
                     animation: `tg-iconFloat 3s ease-in-out ${floatDelay}s infinite`,
                   }}>
-                    <Icon size={26} color={`var(${accentVar})`} strokeWidth={1.8} />
+                    <Icon size={26} color={iconColor} strokeWidth={1.8} />
                   </div>
 
                   {/* Center: title + tagline */}
@@ -553,7 +631,7 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
                       fontFamily: 'var(--font-display)',
                       fontSize: 19,
                       fontWeight: 400,
-                      color: 'var(--aph-white)',
+                      color: '#FFFFFF',
                       marginBottom: 6,
                       letterSpacing: '-0.2px',
                     }}>
@@ -562,7 +640,7 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
                     <p style={{
                       fontFamily: 'var(--font-body)',
                       fontSize: 14,
-                      color: 'rgba(255,255,255,0.5)',
+                      color: taglineColor,
                       lineHeight: 1.5,
                     }}>
                       {story.tagline}
@@ -579,7 +657,7 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
                       fontFamily: 'var(--font-heading)',
                       fontSize: 28,
                       fontWeight: 800,
-                      color: `var(${accentVar})`,
+                      color: statColor,
                       letterSpacing: '-0.5px',
                       lineHeight: 1,
                       display: 'block',
@@ -589,8 +667,8 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
                     <div style={{
                       width: 40,
                       height: 2,
-                      background: `var(${accentVar})`,
-                      opacity: 0.5,
+                      background: isFeaturedAI ? 'rgba(255,255,255,0.4)' : `var(${accentVar})`,
+                      opacity: isFeaturedAI ? 1 : 0.5,
                       borderRadius: 1,
                       marginTop: 6,
                       marginBottom: 4,
@@ -599,7 +677,7 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
                     <span style={{
                       fontFamily: 'var(--font-body)',
                       fontSize: 12,
-                      color: 'rgba(255,255,255,0.4)',
+                      color: statLabelColor,
                       textTransform: 'uppercase',
                       letterSpacing: '0.5px',
                     }}>
@@ -615,7 +693,7 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
                   <div style={{
                     width: 52,
                     height: 52,
-                    borderRadius: 14,
+                    borderRadius: iconBorderRadius,
                     background: `color-mix(in srgb, var(${accentVar}) 15%, transparent)`,
                     display: 'flex',
                     alignItems: 'center',
@@ -631,7 +709,7 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
                     fontFamily: 'var(--font-display)',
                     fontSize: 19,
                     fontWeight: 400,
-                    color: 'var(--aph-white)',
+                    color: '#FFFFFF',
                     marginBottom: 6,
                     letterSpacing: '-0.2px',
                   }}>
@@ -642,7 +720,7 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
                   <p style={{
                     fontFamily: 'var(--font-body)',
                     fontSize: 14,
-                    color: 'rgba(255,255,255,0.5)',
+                    color: 'var(--aph-warm-gray)',
                     lineHeight: 1.5,
                     flex: 1,
                   }}>
@@ -679,7 +757,7 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
                       <span style={{
                         fontFamily: 'var(--font-body)',
                         fontSize: 12,
-                        color: 'rgba(255,255,255,0.4)',
+                        color: 'var(--aph-gold)',
                         textTransform: 'uppercase',
                         letterSpacing: '0.5px',
                       }}>
@@ -698,7 +776,7 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
       <div style={{
         fontFamily: 'var(--font-heading)',
         fontSize: 12,
-        color: 'rgba(255,255,255,0.3)',
+        color: 'var(--aph-warm-gray)',
         textTransform: 'uppercase',
         letterSpacing: '2px',
         marginTop: 20,
@@ -707,15 +785,15 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
         Press 1&ndash;6 to select a topic
       </div>
 
-      {/* Back button */}
+      {/* Back button — pill shape with gold border */}
       <button
         onClick={onBack}
         style={{
           marginTop: 12,
           padding: '10px 24px',
           background: 'transparent',
-          border: '1px solid rgba(255,255,255,0.15)',
-          borderRadius: 8,
+          border: '1px solid var(--aph-gold)',
+          borderRadius: 24,
           color: 'rgba(255,255,255,0.5)',
           fontFamily: 'var(--font-heading)',
           fontSize: 13,
@@ -723,15 +801,15 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
           letterSpacing: '1px',
           textTransform: 'uppercase',
           cursor: 'pointer',
-          transition: 'all 0.3s ease',
+          transition: 'border-color 0.2s ease, color 0.2s ease',
           animation: 'tg-fadeIn 0.5s ease 1s both',
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.borderColor = 'var(--aph-teal)';
-          e.currentTarget.style.color = 'var(--aph-light-teal)';
+          e.currentTarget.style.borderColor = 'var(--aph-gold)';
+          e.currentTarget.style.color = 'var(--aph-gold)';
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)';
+          e.currentTarget.style.borderColor = 'var(--aph-gold)';
           e.currentTarget.style.color = 'rgba(255,255,255,0.5)';
         }}
       >

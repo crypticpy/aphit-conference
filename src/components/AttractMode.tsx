@@ -159,7 +159,7 @@ function ParticlesScene({ fact, visible }: { fact: string; visible: boolean }) {
           fontFamily: 'var(--font-body)',
           fontSize: 'clamp(32px, 4.5vw, 64px)',
           fontWeight: 400,
-          color: 'rgba(255,255,255,0.8)',
+          color: '#FFFFFF',
           lineHeight: 1.35,
           letterSpacing: '0.3px',
         }}>
@@ -315,7 +315,7 @@ export default function AttractMode({ facts, stories, isTvMode, onInteract, onHe
           inset: 0,
           zIndex: 8,
           pointerEvents: 'none',
-          boxShadow: 'inset 0 0 80px 20px rgba(94,198,195,0.08)',
+          boxShadow: 'inset 0 0 80px 20px rgba(242,169,0,0.06)',
           animation: 'am-edgeGlow 1.5s ease both',
         }} />
       )}
@@ -409,9 +409,8 @@ export default function AttractMode({ facts, stories, isTvMode, onInteract, onHe
       <div style={{
         position: 'absolute',
         top: 48,
-        left: 0,
-        right: 0,
-        textAlign: 'center',
+        left: 48,
+        textAlign: 'left',
         pointerEvents: 'none',
         zIndex: 10,
       }}>
@@ -457,8 +456,8 @@ export default function AttractMode({ facts, stories, isTvMode, onInteract, onHe
               width: i === activeSceneIndex ? 24 : 8,
               height: 8,
               borderRadius: 4,
-              background: i === activeSceneIndex ? 'var(--aph-light-teal)' : 'rgba(255,255,255,0.15)',
-              transition: 'all 0.5s ease',
+              background: i === activeSceneIndex ? 'var(--aph-gold)' : 'rgba(181,168,152,0.3)',
+              transition: 'width 0.5s ease, background 0.4s ease',
             }}
           />
         ))}
@@ -482,7 +481,7 @@ export default function AttractMode({ facts, stories, isTvMode, onInteract, onHe
             fontWeight: 500,
             letterSpacing: '3px',
             textTransform: 'uppercase',
-            color: 'var(--aph-light-teal)',
+            color: 'var(--aph-gold)',
             animation: 'pulse 3s ease-in-out infinite',
           }}>
             6 stories · 1,200 users · Touch to discover
@@ -493,7 +492,7 @@ export default function AttractMode({ facts, stories, isTvMode, onInteract, onHe
             animation: 'bounceDown 2s ease-in-out infinite',
           }}>
             <svg width="20" height="12" viewBox="0 0 20 12" fill="none">
-              <path d="M1 1L10 10L19 1" stroke="rgba(94,198,195,0.5)" strokeWidth="2" strokeLinecap="round" />
+              <path d="M1 1L10 10L19 1" stroke="rgba(242,169,0,0.6)" strokeWidth="2" strokeLinecap="round" />
             </svg>
           </div>
         </div>
