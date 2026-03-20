@@ -127,6 +127,7 @@ export default function ParticleCanvas({ interactive = true, dimmed = false, bea
   const animFrameRef = useRef<number>(0);
   const dimRef = useRef(false);
   const timeRef = useRef(0);
+  const currentAlphaRef = useRef(1);
 
   // Beat tracking
   const beatFrameRef = useRef(0);
@@ -223,6 +224,7 @@ export default function ParticleCanvas({ interactive = true, dimmed = false, bea
       ctx.clearRect(0, 0, w, h);
 
       const targetAlpha = isDimmed ? 0.25 : 1;
+      currentAlphaRef.current += (targetAlpha - currentAlphaRef.current) * 0.03;
 
       // ── Mode cycling logic ──
       modeTimer++;
@@ -307,7 +309,7 @@ export default function ParticleCanvas({ interactive = true, dimmed = false, bea
 
         // Pulse alpha
         const pulse = Math.sin(time * p.pulseSpeed + p.pulseOffset) * 0.2 + 0.8;
-        const drawAlpha = p.alpha * pulse * targetAlpha;
+        const drawAlpha = p.alpha * pulse * currentAlphaRef.current;
 
         // Draw outer glow (closer particles only)
         if (p.z > 0.3) {
@@ -359,7 +361,7 @@ export default function ParticleCanvas({ interactive = true, dimmed = false, bea
             const distFactor = 1 - dist / effectiveDist;
             const pulsePhase = particles[i].pulseOffset + particles[j].pulseOffset;
             const linePulse = Math.sin(time * 0.012 + pulsePhase) * 0.3 + 0.7;
-            const lineAlpha = distFactor * 0.14 * linePulse * connConfig.alphaMultiplier * targetAlpha;
+            const lineAlpha = distFactor * 0.14 * linePulse * connConfig.alphaMultiplier * currentAlphaRef.current;
 
             const grad = ctx.createLinearGradient(
               particles[i].x, particles[i].y,

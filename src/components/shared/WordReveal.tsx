@@ -19,7 +19,7 @@ export function WordReveal({ text, visible, staggerMs = 50, style }: {
           <span
             style={{
               display: 'inline-block',
-              transform: visible ? 'translateY(0)' : 'translateY(110%)',
+              transform: visible ? 'translateY(0) scale(1)' : 'translateY(110%) scale(0.96)',
               opacity: visible ? 1 : 0,
               transition: `transform 0.5s cubic-bezier(0.16, 1, 0.3, 1) ${i * staggerMs}ms, opacity 0.4s ease ${i * staggerMs}ms`,
             }}

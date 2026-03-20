@@ -414,8 +414,9 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds, la
         </h2>
         <p style={{
           fontFamily: 'var(--font-body)',
-          fontSize: 18,
-          color: 'var(--aph-warm-gray)',
+          fontSize: 16,
+          color: 'rgba(181,168,152,0.6)',
+          fontStyle: 'italic',
           marginTop: 8,
         }}>
           Select a topic to learn more
@@ -452,7 +453,7 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds, la
         {stories.map((story, index) => {
           const Icon = iconMap[story.icon] || iconMap['Sparkles'];
           const accentVar = story.accentColor;
-          const delay = 0.15 + index * 0.1;
+          const delay = 0.15 + Math.pow(index, 0.75) * 0.12;
           const tilt = tiltState[story.id] || { rx: 0, ry: 0 };
           const gradientBarDelay = 0.4 + index * 0.1;
           const counterDelay = 0.3 + index * 0.15;

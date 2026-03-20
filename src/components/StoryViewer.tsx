@@ -176,7 +176,7 @@ export default function StoryViewer({ story, onBack }: Props) {
       setDirection(dir);
       setSlideVisible(true);
       setIsTransitioning(false);
-    }, 400);
+    }, 350);
   }, [isTransitioning, resetAutoTimer]);
 
   const goForward = useCallback(() => {
@@ -254,19 +254,19 @@ export default function StoryViewer({ story, onBack }: Props) {
   /* ---- transition styles ---- */
   const getSlideTransform = (): React.CSSProperties => {
     if (!slideVisible) {
-      // Exiting: slide out
+      // Exiting: slide out (accelerating out, shorter)
       const tx = direction === 'forward' ? -100 : 100;
       return {
         transform: `translateX(${tx}px)`,
         opacity: 0,
-        transition: 'transform 400ms cubic-bezier(0.22, 1, 0.36, 1), opacity 400ms cubic-bezier(0.22, 1, 0.36, 1)',
+        transition: 'transform 300ms cubic-bezier(0.55, 0, 1, 0.45), opacity 250ms ease',
       };
     }
-    // Entering: start offset, animate to center
+    // Entering: start offset, animate to center (decelerating in, slightly longer)
     return {
       transform: 'translateX(0)',
       opacity: 1,
-      transition: 'transform 400ms cubic-bezier(0.22, 1, 0.36, 1), opacity 400ms cubic-bezier(0.22, 1, 0.36, 1)',
+      transition: 'transform 500ms cubic-bezier(0.16, 1, 0.3, 1), opacity 450ms ease',
     };
   };
 
@@ -343,7 +343,7 @@ export default function StoryViewer({ story, onBack }: Props) {
         }
       `}</style>
 
-      {/* Gradient backdrop */}
+      {/* Gradient backdrop — fades in for atmospheric reveal */}
       <div
         style={{
           position: 'absolute',
@@ -355,6 +355,7 @@ export default function StoryViewer({ story, onBack }: Props) {
             var(--aph-navy)
           `,
           pointerEvents: 'none',
+          animation: 'sv-fadeInSimple 1.2s ease 0s both',
         }}
       />
 
@@ -577,15 +578,26 @@ export default function StoryViewer({ story, onBack }: Props) {
           pointerEvents: 'none',
         }}
       >
+        {/* "Learn More" micro-label */}
+        <span style={{
+          fontFamily: 'var(--font-heading)',
+          fontSize: 9,
+          color: 'rgba(255,255,255,0.25)',
+          letterSpacing: '1.5px',
+          textTransform: 'uppercase',
+          marginBottom: 4,
+        }}>
+          Learn More
+        </span>
         <svg
           width={48}
           height={48}
           viewBox="0 0 48 48"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          style={{ opacity: 0.3 }}
+          style={{ opacity: 0.35 }}
         >
-          <rect x={0} y={0} width={48} height={48} rx={6} fill="white" />
+          <rect x={0} y={0} width={48} height={48} rx={8} fill="rgba(255,255,255,0.9)" />
           {/* Top-left finder pattern */}
           <rect x={4} y={4} width={14} height={14} rx={2} stroke="#111" strokeWidth={2.5} fill="none" />
           <rect x={7} y={7} width={8} height={8} rx={1} fill="#111" />
@@ -613,10 +625,12 @@ export default function StoryViewer({ story, onBack }: Props) {
         <span
           style={{
             fontFamily: 'var(--font-heading)',
-            fontSize: 10,
-            color: 'rgba(255,255,255,0.3)',
-            marginTop: 4,
-            letterSpacing: '0.3px',
+            fontSize: 11,
+            fontWeight: 600,
+            color: 'rgba(255,255,255,0.4)',
+            marginTop: 5,
+            letterSpacing: '0.5px',
+            textTransform: 'uppercase',
           }}
         >
           austinpublichealth.org/hit
@@ -826,12 +840,22 @@ function HeroSlide({
           textTransform: 'uppercase',
           letterSpacing: '3px',
           color: 'var(--aph-warm-gray)',
-          marginTop: 16,
+          marginTop: 28,
           animation: 'sv-fadeIn 0.6s ease 0.35s both',
         }}
       >
         {story.heroStatLabel}
       </div>
+
+      {/* Thin separator — visual pause between stat and tagline */}
+      <div style={{
+        width: 48,
+        height: 2,
+        background: 'rgba(255,255,255,0.15)',
+        margin: '20px auto 0',
+        borderRadius: 1,
+        animation: 'sv-fadeIn 0.6s ease 0.4s both',
+      }} />
 
       {/* Tagline */}
       <div

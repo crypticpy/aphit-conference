@@ -259,8 +259,8 @@ export default function AttractMode({ facts, stories, isTvMode, onInteract, onHe
           to { opacity: 1; }
         }
         @keyframes pulse {
-          0%, 100% { opacity: 0.4; }
-          50% { opacity: 0.8; }
+          0%, 100% { opacity: 0.5; }
+          50% { opacity: 0.7; }
         }
         @keyframes bounceDown {
           0%, 100% { transform: translateY(0); }
@@ -432,7 +432,8 @@ export default function AttractMode({ facts, stories, isTvMode, onInteract, onHe
               height: 10,
               borderRadius: 4,
               background: i === activeSceneIndex ? 'var(--aph-gold)' : 'rgba(181,168,152,0.3)',
-              transition: 'width 0.5s ease, background 0.4s ease',
+              transform: i === activeSceneIndex ? 'scaleY(1)' : 'scaleY(0.85)',
+              transition: 'width 0.5s ease, background 0.4s ease, transform 0.4s ease',
             }}
           />
         ))}
@@ -452,9 +453,9 @@ export default function AttractMode({ facts, stories, isTvMode, onInteract, onHe
         }}>
           <div style={{
             fontFamily: 'var(--font-heading)',
-            fontSize: 18,
-            fontWeight: 500,
-            letterSpacing: '3px',
+            fontSize: 15,
+            fontWeight: 600,
+            letterSpacing: '5px',
             textTransform: 'uppercase',
             color: 'var(--aph-gold)',
             animation: 'pulse 3s ease-in-out infinite',
