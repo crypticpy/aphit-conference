@@ -116,7 +116,8 @@ function createAllDrops(width: number, height: number): RainDrop[] {
 // Component
 // ═══════════════════════════════════════════════════════════════════════════
 
-export default function DataStream({ fact, visible, accentColor = '--aph-teal' }: Props) {
+export default function DataStream({ fact, visible, accentColor: _ac = '--aph-teal' }: Props) {
+  void _ac; // reserved for future per-scene color theming
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const dropsRef = useRef<RainDrop[]>([]);
   const animFrameRef = useRef<number>(0);

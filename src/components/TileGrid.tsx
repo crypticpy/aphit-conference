@@ -230,7 +230,7 @@ function TileCountUp({ stat, delay }: { stat: string; delay: number }) {
 /*  Helper: get tile-specific styles                                   */
 /* ------------------------------------------------------------------ */
 
-function getTileBackground(storyId: string, index: number, isWide: boolean): string {
+function getTileBackground(storyId: string, index: number, _isWide: boolean): string {
   if (index === 0) return 'var(--aph-teal)';
   if (storyId === 'security') return 'rgba(0,6,12,0.9)';
   return 'rgba(0,10,20,0.8)';
