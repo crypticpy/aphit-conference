@@ -100,7 +100,7 @@ function ParticlesScene({ fact, visible }: { fact: string; visible: boolean }) {
         <h1 style={{
           fontFamily: 'var(--font-heading)',
           fontSize: 'clamp(48px, 7vw, 88px)',
-          fontWeight: 400,
+          fontWeight: 700,
           lineHeight: 1.15,
           letterSpacing: '-0.5px',
           marginBottom: 24,

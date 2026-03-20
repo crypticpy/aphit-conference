@@ -12,7 +12,7 @@ export function WordReveal({ text, visible, staggerMs = 50, style }: {
           style={{
             display: 'inline-block',
             overflow: 'hidden',
-            marginRight: '0.3em',
+            marginRight: i < words.length - 1 ? '0.3em' : 0,
             verticalAlign: 'top',
           }}
         >

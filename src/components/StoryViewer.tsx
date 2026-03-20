@@ -139,15 +139,19 @@ export default function StoryViewer({ story, onBack }: Props) {
   const [slideVisible, setSlideVisible] = useState(true);
   const [slideKey, setSlideKey] = useState(0); // forces re-mount for stagger animations
 
+  const [showReturnWarning, setShowReturnWarning] = useState(false);
+
   const autoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const transitionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const returnWarningTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const backButtonRef = useRef<HTMLButtonElement>(null);
   const navLeftRef = useRef<HTMLButtonElement>(null);
   const navRightRef = useRef<HTMLButtonElement>(null);
 
   // Determine auto-advance duration for current slide
   const isLastSlide = currentSlide >= totalSlides - 1;
-  const autoAdvanceDuration = isLastSlide ? 8000 : 15000;
+  const isHeroSlide = currentSlide === 0;
+  const autoAdvanceDuration = isLastSlide ? 8000 : isHeroSlide ? 10000 : 15000;
 
   /* ---- navigation helpers ---- */
   const resetAutoTimer = useCallback(() => {
@@ -157,6 +161,11 @@ export default function StoryViewer({ story, onBack }: Props) {
   const goTo = useCallback((next: number, dir: 'forward' | 'backward') => {
     if (isTransitioning) return;
     resetAutoTimer();
+    setShowReturnWarning(false);
+    if (returnWarningTimerRef.current) {
+      clearTimeout(returnWarningTimerRef.current);
+      returnWarningTimerRef.current = null;
+    }
     setDirection(dir);
     setSlideVisible(false);
     setIsTransitioning(true);
@@ -167,7 +176,7 @@ export default function StoryViewer({ story, onBack }: Props) {
       setDirection(dir);
       setSlideVisible(true);
       setIsTransitioning(false);
-    }, 500);
+    }, 400);
   }, [isTransitioning, resetAutoTimer]);
 
   const goForward = useCallback(() => {
@@ -189,14 +198,35 @@ export default function StoryViewer({ story, onBack }: Props) {
   useEffect(() => {
     resetAutoTimer();
     if (currentSlide < totalSlides - 1) {
-      // Normal slides: 15s
-      autoTimerRef.current = setTimeout(goForward, 15000);
+      // Hero slide: 10s, content slides: 15s
+      const advanceMs = currentSlide === 0 ? 10000 : 15000;
+      autoTimerRef.current = setTimeout(goForward, advanceMs);
     } else {
       // Last slide: 8s then go back to grid
       autoTimerRef.current = setTimeout(onBack, 8000);
     }
     return () => resetAutoTimer();
   }, [currentSlide, totalSlides, goForward, onBack, resetAutoTimer]);
+
+  /* ---- last-slide return warning ---- */
+  useEffect(() => {
+    if (returnWarningTimerRef.current) {
+      clearTimeout(returnWarningTimerRef.current);
+      returnWarningTimerRef.current = null;
+    }
+    setShowReturnWarning(false);
+
+    if (isLastSlide) {
+      returnWarningTimerRef.current = setTimeout(() => {
+        setShowReturnWarning(true);
+      }, 5000);
+    }
+    return () => {
+      if (returnWarningTimerRef.current) {
+        clearTimeout(returnWarningTimerRef.current);
+      }
+    };
+  }, [currentSlide, isLastSlide]);
 
   /* ---- keyboard navigation (arrows, space, escape) ---- */
   useEffect(() => {
@@ -217,6 +247,7 @@ export default function StoryViewer({ story, onBack }: Props) {
     return () => {
       if (autoTimerRef.current) clearTimeout(autoTimerRef.current);
       if (transitionTimerRef.current) clearTimeout(transitionTimerRef.current);
+      if (returnWarningTimerRef.current) clearTimeout(returnWarningTimerRef.current);
     };
   }, []);
 
@@ -228,14 +259,14 @@ export default function StoryViewer({ story, onBack }: Props) {
       return {
         transform: `translateX(${tx}px)`,
         opacity: 0,
-        transition: 'transform 500ms cubic-bezier(0.22, 1, 0.36, 1), opacity 500ms cubic-bezier(0.22, 1, 0.36, 1)',
+        transition: 'transform 400ms cubic-bezier(0.22, 1, 0.36, 1), opacity 400ms cubic-bezier(0.22, 1, 0.36, 1)',
       };
     }
     // Entering: start offset, animate to center
     return {
       transform: 'translateX(0)',
       opacity: 1,
-      transition: 'transform 500ms cubic-bezier(0.22, 1, 0.36, 1), opacity 500ms cubic-bezier(0.22, 1, 0.36, 1)',
+      transition: 'transform 400ms cubic-bezier(0.22, 1, 0.36, 1), opacity 400ms cubic-bezier(0.22, 1, 0.36, 1)',
     };
   };
 
@@ -441,6 +472,8 @@ export default function StoryViewer({ story, onBack }: Props) {
           justifyContent: 'center',
           paddingTop: 80,
           paddingBottom: 80,
+          opacity: showReturnWarning ? 0.85 : 1,
+          transition: 'opacity 0.6s ease',
           ...getSlideTransform(),
         }}
       >
@@ -590,6 +623,34 @@ export default function StoryViewer({ story, onBack }: Props) {
         </span>
       </div>
 
+      {/* Return warning text */}
+      {isLastSlide && (
+        <div
+          style={{
+            position: 'absolute',
+            bottom: 52,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 10,
+            pointerEvents: 'none',
+            opacity: showReturnWarning ? 1 : 0,
+            transition: 'opacity 0.6s ease',
+          }}
+        >
+          <span
+            style={{
+              fontFamily: 'var(--font-heading)',
+              fontSize: 13,
+              fontWeight: 500,
+              color: 'rgba(255,255,255,0.45)',
+              letterSpacing: '0.5px',
+            }}
+          >
+            Returning to topics...
+          </span>
+        </div>
+      )}
+
       {/* Progress dots */}
       <div
         style={{
@@ -625,12 +686,12 @@ export default function StoryViewer({ story, onBack }: Props) {
                 background: isActive
                   ? `var(${accentVar})`
                   : 'rgba(255,255,255,0.2)',
-                transition: 'width 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55), background 0.3s ease, opacity 0.3s ease',
+                transition: 'width 0.4s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s ease, opacity 0.3s ease',
                 opacity: isActive ? 1 : 0.6,
                 boxShadow: isActive
                   ? `inset 0 1px 3px rgba(255,255,255,0.25), 0 0 8px color-mix(in srgb, var(${accentVar}) 40%, transparent)`
                   : 'none',
-                animation: isActive ? 'sv-dotPulseIn 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55)' : 'none',
+                animation: isActive ? 'sv-dotPulseIn 0.4s cubic-bezier(0.16, 1, 0.3, 1)' : 'none',
               }}
             />
           );
@@ -841,8 +902,8 @@ function SectionSlide({
             right: 0,
             top: '30%',
             height: '40%',
-            width: 3,
-            background: `color-mix(in srgb, var(${accentVar}) 30%, transparent)`,
+            width: 4,
+            background: `color-mix(in srgb, var(${accentVar}) 40%, transparent)`,
             borderRadius: 1,
           }}
         />
@@ -930,6 +991,7 @@ function SectionSlide({
           color: 'rgba(255,255,255,0.8)',
           lineHeight: 1.6,
           maxWidth: 780,
+          whiteSpace: 'pre-line',
           animation: 'sv-fadeIn 0.6s ease 150ms both',
         }}
       >

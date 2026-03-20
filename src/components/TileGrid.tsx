@@ -8,6 +8,7 @@ interface Props {
   onSelectTile: (story: TileStory, clickedRect?: TileRect, allRects?: Map<string, TileRect>) => void;
   onBack: () => void;
   visitedIds?: Set<string>;
+  lastViewedId?: string;
 }
 
 /* ------------------------------------------------------------------ */
@@ -250,10 +251,20 @@ function getTileBorderLeft(storyId: string): string | undefined {
 /*  TileGrid                                                           */
 /* ------------------------------------------------------------------ */
 
-export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: Props) {
+export default function TileGrid({ stories, onSelectTile, onBack, visitedIds, lastViewedId }: Props) {
   const tileRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
   const [tiltState, setTiltState] = useState<Record<string, { rx: number; ry: number }>>({});
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [glowingId, setGlowingId] = useState<string | null>(null);
+
+  /* ---- Re-highlight last-viewed tile on return ---- */
+  useEffect(() => {
+    if (lastViewedId) {
+      setGlowingId(lastViewedId);
+      const timer = window.setTimeout(() => setGlowingId(null), 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [lastViewedId]);
 
   const handleTileClick = useCallback(
     (story: TileStory) => {
@@ -347,6 +358,10 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
           from { opacity: 0; transform: scale(0.5); }
           to { opacity: 1; transform: scale(1); }
         }
+        @keyframes tg-returnGlow {
+          0% { box-shadow: 0 0 12px 4px var(--aph-gold); }
+          100% { box-shadow: 0 0 0px 0px transparent; }
+        }
         .tg-tile-card {
           transform-style: preserve-3d;
           transition: transform 0.25s ease,
@@ -412,14 +427,16 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
         <div style={{
           fontFamily: 'var(--font-body)',
           fontSize: 15,
-          color: 'var(--aph-warm-gray)',
+          color: visitedIds?.size === stories.length ? 'var(--aph-gold)' : 'var(--aph-warm-gray)',
           letterSpacing: '1px',
           textAlign: 'left',
           width: '100%',
           maxWidth: 1100,
           marginBottom: 12,
         }}>
-          {visitedIds?.size || 0} of 6 explored
+          {visitedIds?.size === stories.length
+            ? 'All topics explored \u2726'
+            : `${visitedIds?.size || 0} of 6 explored`}
         </div>
       )}
 
@@ -442,6 +459,7 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
           const isVisited = visitedIds?.has(story.id) ?? false;
           const isWide = index === 0 || index === 5;
           const isHovered = hoveredId === story.id;
+          const isGlowing = glowingId === story.id;
 
           const isFeaturedAI = index === 0;
           const isSecurity = story.id === 'security';
@@ -487,9 +505,10 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
                 color: 'inherit',
                 outline: 'none',
                 gridColumn: isWide ? 'span 2' : undefined,
-                animation: isHovered
-                  ? `tg-tileEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s both`
-                  : `tg-tileEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s both`,
+                animation: [
+                  `tg-tileEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s both`,
+                  ...(isGlowing ? ['tg-returnGlow 1.5s ease-out forwards'] : []),
+                ].join(', '),
                 transform: isHovered
                   ? `translateY(0) scale(1) rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg)`
                   : undefined,
@@ -766,18 +785,18 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
         Press 1&ndash;6 to select a topic
       </div>
 
-      {/* Back button — pill shape with gold border */}
+      {/* Back button — pill shape with subtle gold border */}
       <button
         onClick={onBack}
         style={{
-          marginTop: 12,
+          marginTop: 32,
           padding: '12px 32px',
           background: 'transparent',
-          border: '1px solid var(--aph-gold)',
+          border: '0.5px solid rgba(242,169,0,0.3)',
           borderRadius: 24,
           color: 'rgba(255,255,255,0.5)',
           fontFamily: 'var(--font-heading)',
-          fontSize: 15,
+          fontSize: 13,
           fontWeight: 500,
           letterSpacing: '1px',
           textTransform: 'uppercase',
@@ -790,11 +809,11 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
           e.currentTarget.style.color = 'var(--aph-gold)';
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.borderColor = 'var(--aph-gold)';
+          e.currentTarget.style.borderColor = 'rgba(242,169,0,0.3)';
           e.currentTarget.style.color = 'rgba(255,255,255,0.5)';
         }}
       >
-        ← Restart
+        &larr; Back to Start
       </button>
     </div>
   );

@@ -31,6 +31,7 @@ export default function App() {
 
   // ── Visited stories tracking ──
   const [visitedIds, setVisitedIds] = useState<Set<string>>(new Set());
+  const [lastViewedId, setLastViewedId] = useState<string | null>(null);
 
   // ── Beat signal for particle pulse ──
   const [beatTimestamp, setBeatTimestamp] = useState(0);
@@ -59,7 +60,8 @@ export default function App() {
 
   const goToGrid = useCallback(() => {
     clearScatterTimers();
-    setSelectedStory(null);
+    // Capture which story was just viewed for re-highlight on grid
+    setSelectedStory(prev => { if (prev) setLastViewedId(prev.id); return null; });
     setScatterTiles([]);
     setScatterPhase('idle');
     setMode('grid');
@@ -134,8 +136,12 @@ export default function App() {
     }
   }, []);
 
-  // Idle timer: return to attract after 90s of no interaction
-  useIdleTimer(goToAttract, isTvMode ? 999999999 : 90000);
+  // Idle timer: return to attract after 3 min of no interaction (grid only).
+  // Story mode has its own auto-advance timers, so we skip the global reset there.
+  const idleCallback = useCallback(() => {
+    if (mode === 'grid') goToAttract();
+  }, [mode, goToAttract]);
+  useIdleTimer(idleCallback, isTvMode ? 999999999 : 180000);
 
   // Expose navigation for testing
   const navRef = useRef({ goToAttract, goToGrid, handleSelectTile, stories });
@@ -254,6 +260,7 @@ export default function App() {
           onSelectTile={handleSelectTile}
           onBack={goToAttract}
           visitedIds={visitedIds}
+          lastViewedId={lastViewedId ?? undefined}
         />
       </div>
 
