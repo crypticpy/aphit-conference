@@ -5,8 +5,8 @@
 
 :root {
   /* === PRIMARY === */
-  --aph-navy: #003054;
-  --aph-navy-rgb: 0, 48, 84;
+  --aph-navy: #001020;
+  --aph-navy-rgb: 0, 16, 32;
   --aph-teal: #007B83;
   --aph-teal-rgb: 0, 123, 131;
   --aph-white: #FFFFFF;
@@ -53,8 +53,8 @@
   --radius-md: 6px;
   --radius-lg: 8px;
   --radius-xl: 16px;
-  --shadow-card: 0 4px 16px rgba(0, 48, 84, 0.12);
-  --shadow-card-hover: 0 12px 40px rgba(0, 48, 84, 0.24);
+  --shadow-card: 0 4px 16px rgba(0, 16, 32, 0.2);
+  --shadow-card-hover: 0 12px 40px rgba(0, 16, 32, 0.4);
   --shadow-glow-teal: 0 0 60px rgba(0, 123, 131, 0.25);
 }
 

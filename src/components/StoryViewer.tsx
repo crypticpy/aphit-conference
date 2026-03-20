@@ -465,7 +465,7 @@ export default function StoryViewer({ story, onBack }: Props) {
           background: `
             radial-gradient(ellipse at 30% 20%, color-mix(in srgb, var(${accentVar}) 18%, transparent) 0%, transparent 70%),
             radial-gradient(ellipse at 70% 80%, color-mix(in srgb, var(${accentVar}) 10%, transparent) 0%, transparent 60%),
-            radial-gradient(ellipse at 80% 100%, rgba(0,48,84,0.3) 0%, transparent 60%),
+            radial-gradient(ellipse at 80% 100%, rgba(0,16,32,0.3) 0%, transparent 60%),
             var(--aph-navy)
           `,
           pointerEvents: 'none',
@@ -494,7 +494,7 @@ export default function StoryViewer({ story, onBack }: Props) {
           alignItems: 'center',
           justifyContent: 'space-between',
           padding: '20px 48px',
-          background: 'rgba(0,20,40,0.4)',
+          background: 'rgba(0,6,12,0.5)',
           animation: 'sv-topBarSlide 0.4s ease 0.1s both',
         }}
       >

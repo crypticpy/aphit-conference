@@ -254,8 +254,8 @@ function TileCountUp({ stat, delay }: { stat: string; delay: number }) {
 
 function getTileBackground(storyId: string, index: number, isWide: boolean): string {
   if (index === 0) return 'var(--aph-teal)';
-  if (storyId === 'security') return 'rgba(0,20,40,0.85)';
-  return 'rgba(0,30,54,0.7)';
+  if (storyId === 'security') return 'rgba(0,6,12,0.9)';
+  return 'rgba(0,10,20,0.8)';
 }
 
 function getTileBorder(storyId: string, index: number): string {
@@ -524,7 +524,7 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
                 } else if (isSecurity) {
                   // Security tile: coral left border thickens, background lightens
                   el.style.borderLeft = '4px solid var(--aph-coral)';
-                  el.style.background = 'rgba(0,25,50,0.85)';
+                  el.style.background = 'rgba(0,8,16,0.9)';
                   el.style.transform = `translateY(0) scale(1) rotateX(0deg) rotateY(0deg)`;
                   el.style.boxShadow = 'none';
                 } else {
@@ -544,7 +544,7 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
                   el.style.boxShadow = '';
                 } else if (isSecurity) {
                   el.style.borderLeft = '2px solid var(--aph-coral)';
-                  el.style.background = 'rgba(0,20,40,0.85)';
+                  el.style.background = 'rgba(0,6,12,0.9)';
                   el.style.transform = '';
                   el.style.boxShadow = '';
                 } else {

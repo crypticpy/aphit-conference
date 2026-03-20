@@ -400,7 +400,7 @@ export default function AttractMode({ facts, stories, isTvMode, onInteract, onHe
       <div style={{
         position: 'absolute',
         inset: 0,
-        background: 'radial-gradient(ellipse at center, transparent 30%, rgba(0,30,54,0.6) 100%)',
+        background: 'radial-gradient(ellipse at center, transparent 30%, rgba(0,8,16,0.7) 100%)',
         pointerEvents: 'none',
         zIndex: 5,
       }} />

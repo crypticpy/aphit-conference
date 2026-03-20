@@ -178,7 +178,7 @@ export default function App() {
           radial-gradient(ellipse at 20% 20%, rgba(0,123,131,0.10) 0%, transparent 50%),
           radial-gradient(ellipse at 80% 80%, rgba(107,76,154,0.08) 0%, transparent 50%),
           radial-gradient(ellipse at 50% 100%, rgba(242,169,0,0.04) 0%, transparent 40%),
-          radial-gradient(ellipse at 50% 50%, transparent 0%, rgba(0,20,40,0.5) 100%)
+          radial-gradient(ellipse at 50% 50%, transparent 0%, rgba(0,6,12,0.6) 100%)
         `,
         pointerEvents: 'none',
         zIndex: 0,
@@ -307,7 +307,7 @@ export default function App() {
                   width: tile.rect.width,
                   height: tile.rect.height,
                   borderRadius: 10,
-                  background: 'rgba(0,30,54,0.7)',
+                  background: 'rgba(0,8,16,0.85)',
                   border: '1px solid rgba(255,255,255,0.08)',
                   transform: isScattering
                     ? `translate(${tile.tx}px, ${tile.ty}px) rotate(${tile.rotate}deg) scale(0.6)`

@@ -338,7 +338,7 @@ export default function DataStream({ fact, visible, accentColor = '--aph-teal' }
           position: 'absolute',
           inset: 0,
           background:
-            'radial-gradient(ellipse at center, transparent 20%, rgba(0,30,54,0.7) 100%)',
+            'radial-gradient(ellipse at center, transparent 20%, rgba(0,4,8,0.8) 100%)',
           pointerEvents: 'none',
         }}
       />
@@ -367,8 +367,8 @@ export default function DataStream({ fact, visible, accentColor = '--aph-teal' }
             letterSpacing: '-0.5px',
             maxWidth: 900,
             textShadow: `
-              0 0 40px rgba(0,30,54,0.9),
-              0 0 80px rgba(0,30,54,0.7),
+              0 0 40px rgba(0,4,8,0.95),
+              0 0 80px rgba(0,4,8,0.8),
               0 2px 4px rgba(0,0,0,0.5)
             `,
           }}

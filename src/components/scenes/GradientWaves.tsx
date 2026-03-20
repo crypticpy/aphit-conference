@@ -364,7 +364,7 @@ export default function GradientWaves({ fact, visible }: Props) {
         position: 'absolute',
         inset: 0,
         overflow: 'hidden',
-        background: '#003054',
+        background: '#001020',
       }}
     >
       {/* Aurora canvas */}
