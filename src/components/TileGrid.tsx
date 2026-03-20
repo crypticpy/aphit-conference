@@ -628,18 +628,18 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
                   {/* Center: title + tagline */}
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <h3 style={{
-                      fontFamily: 'var(--font-display)',
-                      fontSize: 'clamp(20px, 2vw, 26px)',
-                      fontWeight: 400,
+                      fontFamily: 'var(--font-heading)',
+                      fontSize: 'clamp(22px, 2.5vw, 30px)',
+                      fontWeight: 700,
                       color: '#FFFFFF',
                       marginBottom: 8,
-                      letterSpacing: '-0.2px',
+                      letterSpacing: '-0.3px',
                     }}>
                       {story.title}
                     </h3>
                     <p style={{
                       fontFamily: 'var(--font-body)',
-                      fontSize: 16,
+                      fontSize: 'clamp(15px, 1.5vw, 18px)',
                       color: taglineColor,
                       lineHeight: 1.5,
                     }}>
@@ -706,12 +706,12 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
 
                   {/* Title */}
                   <h3 style={{
-                    fontFamily: 'var(--font-display)',
-                    fontSize: 19,
-                    fontWeight: 400,
+                    fontFamily: 'var(--font-heading)',
+                    fontSize: 'clamp(20px, 2.2vw, 26px)',
+                    fontWeight: 700,
                     color: '#FFFFFF',
-                    marginBottom: 6,
-                    letterSpacing: '-0.2px',
+                    marginBottom: 8,
+                    letterSpacing: '-0.3px',
                   }}>
                     {story.title}
                   </h3>
@@ -719,7 +719,7 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
                   {/* Tagline */}
                   <p style={{
                     fontFamily: 'var(--font-body)',
-                    fontSize: 16,
+                    fontSize: 'clamp(15px, 1.5vw, 18px)',
                     color: 'var(--aph-warm-gray)',
                     lineHeight: 1.5,
                     flex: 1,
@@ -736,7 +736,7 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
                     }}>
                       <span style={{
                         fontFamily: 'var(--font-heading)',
-                        fontSize: 28,
+                        fontSize: 'clamp(28px, 3vw, 38px)',
                         fontWeight: 800,
                         color: `var(${accentVar})`,
                         letterSpacing: '-0.5px',
@@ -756,7 +756,7 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
                       }} />
                       <span style={{
                         fontFamily: 'var(--font-body)',
-                        fontSize: 12,
+                        fontSize: 14,
                         color: 'var(--aph-gold)',
                         textTransform: 'uppercase',
                         letterSpacing: '0.5px',
