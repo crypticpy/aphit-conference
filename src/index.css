@@ -7,6 +7,8 @@
   /* === PRIMARY === */
   --aph-navy: #001020;
   --aph-navy-rgb: 0, 16, 32;
+  --aph-brand-navy: #003054;
+  --aph-brand-navy-rgb: 0, 48, 84;
   --aph-teal: #007B83;
   --aph-teal-rgb: 0, 123, 131;
   --aph-white: #FFFFFF;
@@ -35,9 +37,8 @@
   --aph-warm-gray: #B5A898;
 
   /* === TYPOGRAPHY === */
-  --font-heading: 'DM Sans', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
-  --font-display: 'DM Serif Display', Georgia, 'Times New Roman', serif;
-  --font-body: 'DM Sans', 'Segoe UI', Helvetica, Arial, sans-serif;
+  --font-heading: 'Montserrat', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --font-body: 'Open Sans', 'Segoe UI', Helvetica, Arial, sans-serif;
 
   /* === SPACING === */
   --spacing-xs: 4px;

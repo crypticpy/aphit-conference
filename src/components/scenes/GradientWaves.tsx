@@ -1,4 +1,5 @@
 import { useRef, useEffect, useCallback } from 'react';
+import { WordReveal } from '../shared/WordReveal';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface Props {
@@ -75,45 +76,6 @@ const RIBBONS: AuroraRibbon[] = [
 
 // Number of control points across the screen width for smooth curves
 const NUM_POINTS = 48;
-
-// ─── Word-by-word stagger reveal (matching AttractMode pattern) ──────────────
-function WordReveal({
-  text,
-  visible,
-  staggerMs = 55,
-}: {
-  text: string;
-  visible: boolean;
-  staggerMs?: number;
-}) {
-  const words = text.split(' ');
-  return (
-    <span style={{ display: 'inline' }}>
-      {words.map((word, i) => (
-        <span
-          key={`${word}-${i}`}
-          style={{
-            display: 'inline-block',
-            overflow: 'hidden',
-            marginRight: '0.32em',
-            verticalAlign: 'top',
-          }}
-        >
-          <span
-            style={{
-              display: 'inline-block',
-              transform: visible ? 'translateY(0)' : 'translateY(110%)',
-              opacity: visible ? 1 : 0,
-              transition: `transform 0.6s cubic-bezier(0.16, 1, 0.3, 1) ${i * staggerMs}ms, opacity 0.5s ease ${i * staggerMs}ms`,
-            }}
-          >
-            {word}
-          </span>
-        </span>
-      ))}
-    </span>
-  );
-}
 
 // ─── Compute Y position for a ribbon at a given x, using summed sine waves ──
 function computeRibbonY(

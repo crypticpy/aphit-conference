@@ -38,7 +38,7 @@ interface ScatterChar {
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
-const SWARM_COUNT = 120;
+const SWARM_COUNT = 80;
 const BRAND_COLORS = [
   'var(--aph-teal)',
   'var(--aph-sky-blue)',

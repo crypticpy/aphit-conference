@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import type { TileStory } from '../data/stories';
+import { WordReveal } from './shared/WordReveal';
 
 // Lazy imports — scenes are independent components
 import NumberStorm from './scenes/NumberStorm';
@@ -34,38 +35,6 @@ const CROSSFADE_MS = 1500;
 // ═══════════════════════════════════════════════════════════════════════════
 // Shared sub-components
 // ═══════════════════════════════════════════════════════════════════════════
-
-function WordReveal({ text, visible, staggerMs = 50, style }: {
-  text: string; visible: boolean; staggerMs?: number; style?: React.CSSProperties;
-}) {
-  const words = text.split(' ');
-  return (
-    <span style={{ display: 'inline', ...style }}>
-      {words.map((word, i) => (
-        <span
-          key={`${word}-${i}`}
-          style={{
-            display: 'inline-block',
-            overflow: 'hidden',
-            marginRight: '0.3em',
-            verticalAlign: 'top',
-          }}
-        >
-          <span
-            style={{
-              display: 'inline-block',
-              transform: visible ? 'translateY(0)' : 'translateY(110%)',
-              opacity: visible ? 1 : 0,
-              transition: `transform 0.5s cubic-bezier(0.16, 1, 0.3, 1) ${i * staggerMs}ms, opacity 0.4s ease ${i * staggerMs}ms`,
-            }}
-          >
-            {word}
-          </span>
-        </span>
-      ))}
-    </span>
-  );
-}
 
 function TitleReveal({ line, delay }: { line: string; delay: number }) {
   const words = line.split(' ');
@@ -129,7 +98,7 @@ function ParticlesScene({ fact, visible }: { fact: string; visible: boolean }) {
         perspective: '800px',
       }}>
         <h1 style={{
-          fontFamily: 'var(--font-display)',
+          fontFamily: 'var(--font-heading)',
           fontSize: 'clamp(48px, 7vw, 88px)',
           fontWeight: 400,
           lineHeight: 1.15,
@@ -302,10 +271,6 @@ export default function AttractMode({ facts, stories, isTvMode, onInteract, onHe
           30% { opacity: 1; }
           100% { opacity: 0; }
         }
-        @keyframes am-flash {
-          0% { opacity: 0.04; }
-          100% { opacity: 0; }
-        }
       `}</style>
 
       {/* Screen-edge glow pulse on scene transitions */}
@@ -317,18 +282,6 @@ export default function AttractMode({ facts, stories, isTvMode, onInteract, onHe
           pointerEvents: 'none',
           boxShadow: 'inset 0 0 80px 20px rgba(242,169,0,0.06)',
           animation: 'am-edgeGlow 1.5s ease both',
-        }} />
-      )}
-
-      {/* Brief flash on scene change */}
-      {transitioning && (
-        <div style={{
-          position: 'absolute',
-          inset: 0,
-          zIndex: 9,
-          pointerEvents: 'none',
-          background: 'white',
-          animation: 'am-flash 0.3s ease both',
         }} />
       )}
 
@@ -405,6 +358,18 @@ export default function AttractMode({ facts, stories, isTvMode, onInteract, onHe
         zIndex: 5,
       }} />
 
+      {/* Bottom-edge horizon glow */}
+      <div style={{
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: 60,
+        background: 'linear-gradient(to top, rgba(0, 123, 131, 0.08), transparent)',
+        zIndex: 4,
+        pointerEvents: 'none',
+      }} />
+
       {/* Top branding */}
       <div style={{
         position: 'absolute',
@@ -414,6 +379,16 @@ export default function AttractMode({ facts, stories, isTvMode, onInteract, onHe
         pointerEvents: 'none',
         zIndex: 10,
       }}>
+        <div style={{
+          fontFamily: 'var(--font-heading)',
+          fontSize: 11,
+          fontWeight: 400,
+          color: 'rgba(255,255,255,0.3)',
+          marginBottom: 4,
+          animation: 'brandSubSlideIn 1s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both',
+        }}>
+          City of Austin
+        </div>
         <div style={{
           fontFamily: 'var(--font-heading)',
           fontSize: 16,
@@ -484,7 +459,7 @@ export default function AttractMode({ facts, stories, isTvMode, onInteract, onHe
             color: 'var(--aph-gold)',
             animation: 'pulse 3s ease-in-out infinite',
           }}>
-            6 stories · 1,200 users · Touch to discover
+            Click anywhere to explore
           </div>
           <div style={{
             marginTop: 12,

@@ -1,26 +1,13 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Sparkles,
-  Globe,
-  BarChart3,
-  Server,
-  ShieldCheck,
-  Users,
   ArrowLeft,
   ChevronLeft,
   ChevronRight,
   type LucideIcon,
 } from 'lucide-react';
 import type { TileStory } from '../data/stories';
-
-const iconMap: Record<string, LucideIcon> = {
-  Sparkles,
-  Globe,
-  BarChart3,
-  Server,
-  ShieldCheck,
-  Users,
-};
+import { iconMap } from './shared/iconMap';
 
 interface Props {
   story: TileStory;
@@ -139,124 +126,6 @@ function ProgressTimerBar({
 }
 
 /* ------------------------------------------------------------------ */
-/*  MiniMapTimeline — vertical dot timeline on the left edge           */
-/* ------------------------------------------------------------------ */
-function MiniMapTimeline({
-  totalSlides,
-  currentSlide,
-  accentVar,
-  onDotClick,
-}: {
-  totalSlides: number;
-  currentSlide: number;
-  accentVar: string;
-  onDotClick: (index: number) => void;
-}) {
-  const dotSize = 8;
-  const activeDotSize = 12;
-  const gap = 22; // vertical spacing between dot centers
-  const totalHeight = (totalSlides - 1) * gap;
-
-  return (
-    <div
-      style={{
-        position: 'absolute',
-        left: 24,
-        top: '50%',
-        transform: 'translateY(-50%)',
-        zIndex: 10,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        height: totalHeight,
-        opacity: 0,
-        animation: 'sv-fadeInSimple 0.4s ease 0.5s forwards',
-      }}
-    >
-      {/* Connecting line */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 0,
-          bottom: 0,
-          width: 1,
-          background: 'rgba(255,255,255,0.1)',
-        }}
-      />
-      {/* Dots */}
-      {Array.from({ length: totalSlides }).map((_, i) => {
-        const isActive = i === currentSlide;
-        const size = isActive ? activeDotSize : dotSize;
-        return (
-          <button
-            key={i}
-            onClick={(e) => {
-              e.stopPropagation();
-              onDotClick(i);
-            }}
-            style={{
-              position: 'absolute',
-              top: i * gap - size / 2,
-              left: '50%',
-              transform: 'translateX(-50%)',
-              width: size,
-              height: size,
-              borderRadius: '50%',
-              border: 'none',
-              padding: 0,
-              cursor: 'pointer',
-              background: isActive ? `var(${accentVar})` : 'rgba(255,255,255,0.2)',
-              transition: 'width 0.3s ease-out, height 0.3s ease-out, background 0.3s ease-out, box-shadow 0.3s ease-out',
-              zIndex: 1,
-              boxShadow: isActive ? `0 0 8px var(${accentVar})` : 'none',
-            }}
-          />
-        );
-      })}
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/*  KeyboardHint — fades in then out in bottom-right                   */
-/* ------------------------------------------------------------------ */
-function KeyboardHint() {
-  const [visible, setVisible] = useState(false);
-  const [fading, setFading] = useState(false);
-
-  useEffect(() => {
-    const showTimer = setTimeout(() => setVisible(true), 1000);
-    const fadeTimer = setTimeout(() => setFading(true), 5000);
-    return () => {
-      clearTimeout(showTimer);
-      clearTimeout(fadeTimer);
-    };
-  }, []);
-
-  if (!visible && !fading) return null;
-
-  return (
-    <div
-      style={{
-        position: 'absolute',
-        bottom: 48,
-        right: 32,
-        zIndex: 10,
-        fontFamily: 'var(--font-heading)',
-        fontSize: 11,
-        color: 'rgba(255,255,255,0.25)',
-        letterSpacing: '0.5px',
-        pointerEvents: 'none',
-        opacity: fading ? 0 : 1,
-        transition: 'opacity 0.8s ease',
-      }}
-    >
-      &larr; &rarr; navigate &middot; Esc back
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
 /*  StoryViewer — full-screen slideshow                                */
 /* ------------------------------------------------------------------ */
 export default function StoryViewer({ story, onBack }: Props) {
@@ -278,7 +147,7 @@ export default function StoryViewer({ story, onBack }: Props) {
 
   // Determine auto-advance duration for current slide
   const isLastSlide = currentSlide >= totalSlides - 1;
-  const autoAdvanceDuration = isLastSlide ? 10000 : 30000;
+  const autoAdvanceDuration = isLastSlide ? 8000 : 15000;
 
   /* ---- navigation helpers ---- */
   const resetAutoTimer = useCallback(() => {
@@ -316,32 +185,27 @@ export default function StoryViewer({ story, onBack }: Props) {
     }
   }, [currentSlide, goTo]);
 
-  /* ---- mini-map dot click handler ---- */
-  const handleDotNavigate = useCallback((index: number) => {
-    if (index === currentSlide) return;
-    resetAutoTimer();
-    goTo(index, index > currentSlide ? 'forward' : 'backward');
-  }, [currentSlide, resetAutoTimer, goTo]);
-
   /* ---- auto-advance timer ---- */
   useEffect(() => {
     resetAutoTimer();
     if (currentSlide < totalSlides - 1) {
-      // Normal slides: 30s
-      autoTimerRef.current = setTimeout(goForward, 30000);
+      // Normal slides: 15s
+      autoTimerRef.current = setTimeout(goForward, 15000);
     } else {
-      // Last slide: 10s then go back to grid
-      autoTimerRef.current = setTimeout(onBack, 10000);
+      // Last slide: 8s then go back to grid
+      autoTimerRef.current = setTimeout(onBack, 8000);
     }
     return () => resetAutoTimer();
   }, [currentSlide, totalSlides, goForward, onBack, resetAutoTimer]);
 
-  /* ---- keyboard navigation ---- */
+  /* ---- keyboard navigation (arrows, space, escape) ---- */
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       resetAutoTimer();
-      if (e.key === 'ArrowRight') goForward();
-      else if (e.key === 'ArrowLeft') goBackward();
+      if (e.key === 'ArrowRight' || e.key === ' ') {
+        e.preventDefault(); // prevent space from scrolling
+        goForward();
+      } else if (e.key === 'ArrowLeft') goBackward();
       else if (e.key === 'Escape') onBack();
     };
     window.addEventListener('keydown', handler);
@@ -355,24 +219,6 @@ export default function StoryViewer({ story, onBack }: Props) {
       if (transitionTimerRef.current) clearTimeout(transitionTimerRef.current);
     };
   }, []);
-
-  /* ---- click zones (left half / right half) ---- */
-  const handleAreaClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    // Ignore if clicking on interactive elements
-    const target = e.target as HTMLElement;
-    if (
-      target.closest('button') ||
-      target.closest('a')
-    ) return;
-    resetAutoTimer();
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    if (x < rect.width / 2) {
-      goBackward();
-    } else {
-      goForward();
-    }
-  }, [goForward, goBackward, resetAutoTimer]);
 
   /* ---- transition styles ---- */
   const getSlideTransform = (): React.CSSProperties => {
@@ -411,13 +257,19 @@ export default function StoryViewer({ story, onBack }: Props) {
 
   return (
     <div
+      onClick={(e) => {
+        // Click anywhere advances — unless clicking a button or link
+        const target = e.target as HTMLElement;
+        if (target.closest('button') || target.closest('a')) return;
+        resetAutoTimer();
+        goForward();
+      }}
       style={{
         position: 'absolute',
         inset: 0,
         overflow: 'hidden',
-        cursor: 'default',
+        cursor: 'pointer',
       }}
-      onClick={handleAreaClick}
     >
       <style>{`
         @keyframes sv-topBarSlide {
@@ -606,7 +458,7 @@ export default function StoryViewer({ story, onBack }: Props) {
           }}
           style={{
             position: 'absolute',
-            left: 56,
+            left: 24,
             top: '50%',
             transform: 'translateY(-50%)',
             zIndex: 10,
@@ -679,13 +531,64 @@ export default function StoryViewer({ story, onBack }: Props) {
         </button>
       )}
 
-      {/* Mini-map timeline (left edge) */}
-      <MiniMapTimeline
-        totalSlides={totalSlides}
-        currentSlide={currentSlide}
-        accentVar={accentVar}
-        onDotClick={handleDotNavigate}
-      />
+      {/* QR code placeholder (bottom-right) */}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: 56,
+          right: 32,
+          zIndex: 10,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          pointerEvents: 'none',
+        }}
+      >
+        <svg
+          width={48}
+          height={48}
+          viewBox="0 0 48 48"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          style={{ opacity: 0.3 }}
+        >
+          <rect x={0} y={0} width={48} height={48} rx={6} fill="white" />
+          {/* Top-left finder pattern */}
+          <rect x={4} y={4} width={14} height={14} rx={2} stroke="#111" strokeWidth={2.5} fill="none" />
+          <rect x={7} y={7} width={8} height={8} rx={1} fill="#111" />
+          {/* Top-right finder pattern */}
+          <rect x={30} y={4} width={14} height={14} rx={2} stroke="#111" strokeWidth={2.5} fill="none" />
+          <rect x={33} y={7} width={8} height={8} rx={1} fill="#111" />
+          {/* Bottom-left finder pattern */}
+          <rect x={4} y={30} width={14} height={14} rx={2} stroke="#111" strokeWidth={2.5} fill="none" />
+          <rect x={7} y={33} width={8} height={8} rx={1} fill="#111" />
+          {/* Data modules */}
+          <rect x={22} y={4} width={4} height={4} fill="#111" />
+          <rect x={22} y={12} width={4} height={4} fill="#111" />
+          <rect x={22} y={22} width={4} height={4} fill="#111" />
+          <rect x={30} y={22} width={4} height={4} fill="#111" />
+          <rect x={38} y={22} width={4} height={4} fill="#111" />
+          <rect x={22} y={30} width={4} height={4} fill="#111" />
+          <rect x={30} y={30} width={4} height={4} fill="#111" />
+          <rect x={38} y={30} width={4} height={4} fill="#111" />
+          <rect x={22} y={38} width={4} height={4} fill="#111" />
+          <rect x={30} y={38} width={4} height={4} fill="#111" />
+          <rect x={38} y={38} width={4} height={4} fill="#111" />
+          <rect x={4} y={22} width={4} height={4} fill="#111" />
+          <rect x={12} y={22} width={4} height={4} fill="#111" />
+        </svg>
+        <span
+          style={{
+            fontFamily: 'var(--font-heading)',
+            fontSize: 10,
+            color: 'rgba(255,255,255,0.3)',
+            marginTop: 4,
+            letterSpacing: '0.3px',
+          }}
+        >
+          austinpublichealth.org/hit
+        </span>
+      </div>
 
       {/* Progress dots */}
       <div
@@ -741,8 +644,6 @@ export default function StoryViewer({ story, onBack }: Props) {
         durationMs={autoAdvanceDuration}
       />
 
-      {/* Keyboard hint (bottom-right, fades in then out) */}
-      <KeyboardHint />
     </div>
   );
 }
@@ -950,7 +851,7 @@ function SectionSlide({
       {/* Section number */}
       <div
         style={{
-          fontFamily: 'var(--font-display)',
+          fontFamily: 'var(--font-heading)',
           fontSize: 72,
           fontWeight: 400,
           fontStyle: 'italic' as const,

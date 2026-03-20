@@ -1,30 +1,7 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
-import {
-  Sparkles,
-  Globe,
-  BarChart3,
-  Server,
-  ShieldCheck,
-  Users,
-  type LucideIcon,
-} from 'lucide-react';
 import type { TileStory } from '../data/stories';
-
-const iconMap: Record<string, LucideIcon> = {
-  Sparkles,
-  Globe,
-  BarChart3,
-  Server,
-  ShieldCheck,
-  Users,
-};
-
-interface TileRect {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
+import { iconMap } from './shared/iconMap';
+import type { TileRect } from './shared/types';
 
 interface Props {
   stories: TileStory[];
@@ -53,7 +30,7 @@ function getTilePattern(storyId: string, accentVar: string): React.ReactNode {
             top: 0,
             right: 0,
             pointerEvents: 'none',
-            opacity: 0.04,
+            opacity: 0.12,
           }}
         >
           {/* Nodes */}
@@ -81,7 +58,7 @@ function getTilePattern(storyId: string, accentVar: string): React.ReactNode {
             top: 0,
             right: 0,
             pointerEvents: 'none',
-            opacity: 0.04,
+            opacity: 0.12,
           }}
         >
           <circle cx="70" cy="60" r="15" fill="none" stroke={color} strokeWidth="1.2" />
@@ -103,7 +80,7 @@ function getTilePattern(storyId: string, accentVar: string): React.ReactNode {
             top: 0,
             right: 0,
             pointerEvents: 'none',
-            opacity: 0.04,
+            opacity: 0.12,
           }}
         >
           {/* Bar chart bars */}
@@ -128,7 +105,7 @@ function getTilePattern(storyId: string, accentVar: string): React.ReactNode {
             top: 0,
             right: 0,
             pointerEvents: 'none',
-            opacity: 0.04,
+            opacity: 0.12,
           }}
         >
           {/* Perpendicular traces */}
@@ -159,7 +136,7 @@ function getTilePattern(storyId: string, accentVar: string): React.ReactNode {
             top: 0,
             right: 0,
             pointerEvents: 'none',
-            opacity: 0.05,
+            opacity: 0.12,
           }}
         >
           <path
@@ -186,7 +163,7 @@ function getTilePattern(storyId: string, accentVar: string): React.ReactNode {
             top: 0,
             right: 0,
             pointerEvents: 'none',
-            opacity: 0.04,
+            opacity: 0.12,
           }}
         >
           <circle cx="60" cy="90" r="4" fill={color} />
@@ -362,10 +339,6 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
           from { opacity: 0; }
           to { opacity: 1; }
         }
-        @keyframes tg-iconFloat {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-4px); }
-        }
         @keyframes tg-gradientBarGrow {
           from { transform: scaleX(0); }
           to { transform: scaleX(1); }
@@ -373,10 +346,6 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
         @keyframes tg-checkFadeIn {
           from { opacity: 0; transform: scale(0.5); }
           to { opacity: 1; transform: scale(1); }
-        }
-        @keyframes tg-breathe {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.008); }
         }
         .tg-tile-card {
           transform-style: preserve-3d;
@@ -388,7 +357,7 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
           transform: scale(0.97) !important;
         }
         .tg-tile-card:not(:hover) {
-          animation-name: tg-tileEntrance, tg-breathe !important;
+          animation-name: tg-tileEntrance !important;
         }
         /* Top gradient bar opacity transitions */
         .tg-top-gradient-bar {
@@ -438,6 +407,22 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
         </p>
       </div>
 
+      {/* Completion tracker */}
+      {(visitedIds?.size ?? 0) >= 1 && (
+        <div style={{
+          fontFamily: 'var(--font-body)',
+          fontSize: 15,
+          color: 'var(--aph-warm-gray)',
+          letterSpacing: '1px',
+          textAlign: 'left',
+          width: '100%',
+          maxWidth: 1100,
+          marginBottom: 12,
+        }}>
+          {visitedIds?.size || 0} of 6 explored
+        </div>
+      )}
+
       {/* Grid */}
       <div style={{
         display: 'grid',
@@ -448,17 +433,15 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
         perspective: '1200px',
       }}>
         {stories.map((story, index) => {
-          const Icon = iconMap[story.icon] || Sparkles;
+          const Icon = iconMap[story.icon] || iconMap['Sparkles'];
           const accentVar = story.accentColor;
           const delay = 0.15 + index * 0.1;
-          const floatDelay = index * 0.5;
           const tilt = tiltState[story.id] || { rx: 0, ry: 0 };
           const gradientBarDelay = 0.4 + index * 0.1;
           const counterDelay = 0.3 + index * 0.15;
           const isVisited = visitedIds?.has(story.id) ?? false;
           const isWide = index === 0 || index === 5;
           const isHovered = hoveredId === story.id;
-          const breatheDelay = index * 0.7;
 
           const isFeaturedAI = index === 0;
           const isSecurity = story.id === 'security';
@@ -506,7 +489,7 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
                 gridColumn: isWide ? 'span 2' : undefined,
                 animation: isHovered
                   ? `tg-tileEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s both`
-                  : `tg-tileEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s both, tg-breathe 4s ease-in-out ${breatheDelay}s infinite`,
+                  : `tg-tileEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s both`,
                 transform: isHovered
                   ? `translateY(0) scale(1) rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg)`
                   : undefined,
@@ -620,7 +603,6 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
                     justifyContent: 'center',
                     flexShrink: 0,
                     marginRight: 28,
-                    animation: `tg-iconFloat 3s ease-in-out ${floatDelay}s infinite`,
                   }}>
                     <Icon size={28} color={iconColor} strokeWidth={1.8} />
                   </div>
@@ -699,7 +681,6 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
                     alignItems: 'center',
                     justifyContent: 'center',
                     marginBottom: 18,
-                    animation: `tg-iconFloat 3s ease-in-out ${floatDelay}s infinite`,
                   }}>
                     <Icon size={28} color={`var(${accentVar})`} strokeWidth={1.8} />
                   </div>

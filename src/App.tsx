@@ -5,16 +5,9 @@ import TileGrid from './components/TileGrid';
 import StoryViewer from './components/StoryViewer';
 import { stories, attractFacts, type TileStory } from './data/stories';
 import { useIdleTimer } from './hooks/useIdleTimer';
+import type { TileRect } from './components/shared/types';
 
 type AppMode = 'attract' | 'grid' | 'story';
-
-// ── Tile rect for scatter/morph animation ────────────────────────────────────
-interface TileRect {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
 
 interface ScatterTile {
   id: string;
@@ -160,6 +153,23 @@ export default function App() {
 
   // Clean up on unmount
   useEffect(() => () => clearScatterTimers(), []);
+
+  // ── Panic reset: 3× Escape within 1500ms reloads the page ──
+  const escTimestampsRef = useRef<number[]>([]);
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      const now = Date.now();
+      escTimestampsRef.current.push(now);
+      // Keep only timestamps within the last 1500ms
+      escTimestampsRef.current = escTimestampsRef.current.filter(t => now - t <= 1500);
+      if (escTimestampsRef.current.length >= 3) {
+        window.location.reload();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   return (
     <>

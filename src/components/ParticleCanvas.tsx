@@ -46,7 +46,7 @@ const PARTICLE_COLORS = [
   { r: 94, g: 198, b: 195 },  // Light Teal (weight)
 ];
 
-const PARTICLE_COUNT = 200;
+const PARTICLE_COUNT = 140;
 const CONNECTION_DISTANCE = 120;
 const MOUSE_RADIUS = 200;
 

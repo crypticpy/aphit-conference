@@ -1,4 +1,5 @@
 import { useRef, useEffect, useCallback } from 'react';
+import { WordReveal } from '../shared/WordReveal';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types
@@ -63,48 +64,6 @@ function pickRandom<T>(arr: T[]): T {
 
 function randomChar(): string {
   return pickRandom(CHARS);
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// Word-by-word stagger reveal (matches project pattern from AttractMode)
-// ═══════════════════════════════════════════════════════════════════════════
-
-function WordReveal({
-  text,
-  visible,
-  staggerMs = 50,
-}: {
-  text: string;
-  visible: boolean;
-  staggerMs?: number;
-}) {
-  const words = text.split(' ');
-  return (
-    <span style={{ display: 'inline' }}>
-      {words.map((word, i) => (
-        <span
-          key={`${word}-${i}`}
-          style={{
-            display: 'inline-block',
-            overflow: 'hidden',
-            marginRight: '0.3em',
-            verticalAlign: 'top',
-          }}
-        >
-          <span
-            style={{
-              display: 'inline-block',
-              transform: visible ? 'translateY(0)' : 'translateY(110%)',
-              opacity: visible ? 1 : 0,
-              transition: `transform 0.5s cubic-bezier(0.16, 1, 0.3, 1) ${i * staggerMs}ms, opacity 0.4s ease ${i * staggerMs}ms`,
-            }}
-          >
-            {word}
-          </span>
-        </span>
-      ))}
-    </span>
-  );
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
