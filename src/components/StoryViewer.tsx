@@ -304,8 +304,11 @@ export default function StoryViewer({ story, onBack }: Props) {
   const goForward = useCallback(() => {
     if (currentSlide < totalSlides - 1) {
       goTo(currentSlide + 1, 'forward');
+    } else {
+      // Last slide — loop back to tile grid
+      onBack();
     }
-  }, [currentSlide, totalSlides, goTo]);
+  }, [currentSlide, totalSlides, goTo, onBack]);
 
   const goBackward = useCallback(() => {
     if (currentSlide > 0) {
@@ -634,8 +637,8 @@ export default function StoryViewer({ story, onBack }: Props) {
         </button>
       )}
 
-      {/* Right arrow nav */}
-      {currentSlide < totalSlides - 1 && (
+      {/* Right arrow nav — always visible; on last slide it returns to grid */}
+      {(
         <button
           ref={navRightRef}
           onClick={(e) => {

@@ -14,6 +14,7 @@ interface Particle {
   alpha: number;
   pulseSpeed: number;
   pulseOffset: number;
+  driftAngle: number; // unique drift direction per particle (prevents clustering)
 }
 
 interface Props {
@@ -60,16 +61,18 @@ const TRANSITION_DURATION = 150;    // frames (~2.5s crossfade)
 
 // Beat pulse
 const BEAT_DURATION = 60;           // frames (~1s)
-const BEAT_FORCE = 7.0;
+const BEAT_FORCE = 4.5;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Movement functions — pure: (particle, time) => { dx, dy }
 // ═══════════════════════════════════════════════════════════════════════════
 
 function starfieldMove(p: Particle, time: number): { dx: number; dy: number } {
+  // Each particle drifts in its own direction (prevents uniform clustering)
+  const speed = 0.3 * p.baseSpeed;
   return {
-    dx: DRIFT_X * p.baseSpeed + Math.sin(time * 0.005 + p.pulseOffset) * 0.15 * p.baseSpeed,
-    dy: DRIFT_Y * p.baseSpeed + Math.cos(time * 0.004 + p.pulseOffset * 1.3) * 0.1 * p.baseSpeed,
+    dx: Math.cos(p.driftAngle) * speed + Math.sin(time * 0.005 + p.pulseOffset) * 0.15 * p.baseSpeed,
+    dy: Math.sin(p.driftAngle) * speed + Math.cos(time * 0.004 + p.pulseOffset * 1.3) * 0.1 * p.baseSpeed,
   };
 }
 
@@ -146,6 +149,10 @@ export default function ParticleCanvas({ interactive = true, dimmed = false, bea
     for (let i = 0; i < PARTICLE_COUNT; i++) {
       const colorObj = PARTICLE_COLORS[Math.floor(Math.random() * PARTICLE_COLORS.length)];
       const z = Math.random();
+      // Each particle gets a unique drift angle (biased slightly rightward/downward but varied)
+      const baseAngle = Math.atan2(DRIFT_Y, DRIFT_X); // ~0.54 rad
+      const angleSpread = Math.PI * 0.6; // ±54° variation
+      const driftAngle = baseAngle + (Math.random() - 0.5) * angleSpread;
       particles.push({
         x: Math.random() * width,
         y: Math.random() * height,
@@ -156,6 +163,7 @@ export default function ParticleCanvas({ interactive = true, dimmed = false, bea
         alpha: 0.2 + z * 0.6,
         pulseSpeed: Math.random() * 0.015 + 0.003,
         pulseOffset: Math.random() * Math.PI * 2,
+        driftAngle,
       });
     }
     return particles;
@@ -168,17 +176,19 @@ export default function ParticleCanvas({ interactive = true, dimmed = false, bea
     const ctx = canvas.getContext('2d', { alpha: true });
     if (!ctx) return;
 
+    let dpr = window.devicePixelRatio || 1;
+
     const resize = () => {
-      const dpr = window.devicePixelRatio || 1;
+      dpr = window.devicePixelRatio || 1;
       canvas.width = window.innerWidth * dpr;
       canvas.height = window.innerHeight * dpr;
       canvas.style.width = `${window.innerWidth}px`;
       canvas.style.height = `${window.innerHeight}px`;
-      ctx.scale(dpr, dpr);
+      // Use setTransform (not scale) — idempotent, never compounds
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-      if (particlesRef.current.length === 0) {
-        particlesRef.current = createParticles(window.innerWidth, window.innerHeight);
-      }
+      // Always recreate on resize to prevent clustering from stale HMR state
+      particlesRef.current = createParticles(window.innerWidth, window.innerHeight);
     };
 
     resize();
@@ -208,6 +218,8 @@ export default function ParticleCanvas({ interactive = true, dimmed = false, bea
       const mouse = mouseRef.current;
       const isDimmed = dimRef.current;
 
+      // Reset transform each frame — prevents DPR compounding from HMR or resize
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, w, h);
 
       const targetAlpha = isDimmed ? 0.25 : 1;
@@ -287,11 +299,11 @@ export default function ParticleCanvas({ interactive = true, dimmed = false, bea
           }
         }
 
-        // Wrap around all edges
-        if (p.x > w + 30) p.x = -30;
-        if (p.x < -30) p.x = w + 30;
-        if (p.y > h + 30) p.y = -30;
-        if (p.y < -30) p.y = h + 30;
+        // Wrap around all edges — randomize perpendicular axis to prevent band clustering
+        if (p.x > w + 30) { p.x = -30; p.y = Math.random() * h; }
+        if (p.x < -30) { p.x = w + 30; p.y = Math.random() * h; }
+        if (p.y > h + 30) { p.y = -30; p.x = Math.random() * w; }
+        if (p.y < -30) { p.y = h + 30; p.x = Math.random() * w; }
 
         // Pulse alpha
         const pulse = Math.sin(time * p.pulseSpeed + p.pulseOffset) * 0.2 + 0.8;
