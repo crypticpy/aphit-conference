@@ -215,22 +215,14 @@ export default function AttractMode({ facts, stories, isTvMode, onInteract, onHe
   }, [activeSceneIndex]);
 
   // ── Click handler (laptop only) ──
-  const firedRef = useRef(false);
+  // No one-shot guard needed: App.tsx sets pointerEvents:'none' on the
+  // attract layer when it's not active, so clicks can't reach us twice.
   useEffect(() => {
     if (isTvMode) return;
-    firedRef.current = false;
-    const handler = () => {
-      if (!firedRef.current) {
-        firedRef.current = true;
-        onInteractRef.current();
-      }
-    };
-    const timer = setTimeout(() => {
-      window.addEventListener('click', handler);
-      window.addEventListener('touchstart', handler);
-    }, 300);
+    const handler = () => onInteractRef.current();
+    window.addEventListener('click', handler);
+    window.addEventListener('touchstart', handler);
     return () => {
-      clearTimeout(timer);
       window.removeEventListener('click', handler);
       window.removeEventListener('touchstart', handler);
     };
