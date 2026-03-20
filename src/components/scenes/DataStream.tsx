@@ -42,7 +42,7 @@ const FONT_SIZE_MIN = 13;
 const FONT_SIZE_MAX = 16;
 const SPEED_MIN = 1.5;
 const SPEED_MAX = 4.0;
-const CHAR_FLICKER_CHANCE = 0.05; // ~5% chance per frame to randomize 1-2 trail chars
+const CHAR_CYCLE_CHANCE = 0.15; // ~15% chance per char per frame to cycle to a new glyph
 const MONO_FONT = "'Source Code Pro', 'Fira Code', monospace";
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -211,14 +211,10 @@ export default function DataStream({ fact, visible, accentColor = '--aph-teal' }
         // ── 1. Move headY down by speed ──
         drop.headY += drop.speed;
 
-        // ── 2. Randomly flicker 1-2 chars in the trail (~5% chance per frame) ──
-        if (Math.random() < CHAR_FLICKER_CHANCE) {
-          const idx1 = randomInt(0, drop.trailLength - 1);
-          drop.chars[idx1] = randomChar();
-          // Sometimes flicker a second char
-          if (Math.random() < 0.4) {
-            const idx2 = randomInt(0, drop.trailLength - 1);
-            drop.chars[idx2] = randomChar();
+        // ── 2. Cycle individual characters — each char has a chance to change every frame ──
+        for (let ci = 0; ci < drop.trailLength; ci++) {
+          if (Math.random() < CHAR_CYCLE_CHANCE) {
+            drop.chars[ci] = randomChar();
           }
         }
 
@@ -363,7 +359,7 @@ export default function DataStream({ fact, visible, accentColor = '--aph-teal' }
         <p
           style={{
             fontFamily: 'var(--font-heading)',
-            fontSize: 'clamp(24px, 4vw, 52px)',
+            fontSize: 'clamp(32px, 5vw, 64px)',
             fontWeight: 800,
             color: 'var(--aph-white)',
             textAlign: 'center',
