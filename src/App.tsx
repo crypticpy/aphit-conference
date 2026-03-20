@@ -223,64 +223,6 @@ export default function App() {
         }}
       />
 
-      {/* Topographic pattern */}
-      <svg
-        style={{
-          position: "fixed",
-          inset: 0,
-          width: "100%",
-          height: "100%",
-          zIndex: 0,
-          pointerEvents: "none",
-          opacity: 0.03,
-        }}
-      >
-        <defs>
-          <pattern
-            id="topo"
-            x="0"
-            y="0"
-            width="200"
-            height="200"
-            patternUnits="userSpaceOnUse"
-          >
-            <circle
-              cx="100"
-              cy="100"
-              r="80"
-              fill="none"
-              stroke="white"
-              strokeWidth="0.5"
-            />
-            <circle
-              cx="100"
-              cy="100"
-              r="60"
-              fill="none"
-              stroke="white"
-              strokeWidth="0.5"
-            />
-            <circle
-              cx="100"
-              cy="100"
-              r="40"
-              fill="none"
-              stroke="white"
-              strokeWidth="0.5"
-            />
-            <circle
-              cx="100"
-              cy="100"
-              r="20"
-              fill="none"
-              stroke="white"
-              strokeWidth="0.5"
-            />
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#topo)" />
-      </svg>
-
       {/* Global noise/grain texture */}
       <div
         style={{
