@@ -124,13 +124,13 @@ function ParticlesScene({ fact, visible }: { fact: string; visible: boolean }) {
 
       <div style={{
         textAlign: 'center',
-        maxWidth: 1000,
-        padding: '0 48px',
+        maxWidth: 1200,
+        padding: '0 64px',
         perspective: '800px',
       }}>
         <h1 style={{
           fontFamily: 'var(--font-display)',
-          fontSize: 'clamp(42px, 6.5vw, 76px)',
+          fontSize: 'clamp(48px, 7vw, 88px)',
           fontWeight: 400,
           lineHeight: 1.15,
           letterSpacing: '-0.5px',
@@ -157,7 +157,7 @@ function ParticlesScene({ fact, visible }: { fact: string; visible: boolean }) {
 
         <p style={{
           fontFamily: 'var(--font-body)',
-          fontSize: 'clamp(32px, 4.5vw, 64px)',
+          fontSize: 'clamp(36px, 5vw, 72px)',
           fontWeight: 400,
           color: '#FFFFFF',
           lineHeight: 1.35,
@@ -416,7 +416,7 @@ export default function AttractMode({ facts, stories, isTvMode, onInteract, onHe
       }}>
         <div style={{
           fontFamily: 'var(--font-heading)',
-          fontSize: 13,
+          fontSize: 16,
           fontWeight: 600,
           textTransform: 'uppercase',
           color: 'rgba(94, 198, 195, 0.7)',
@@ -427,7 +427,7 @@ export default function AttractMode({ facts, stories, isTvMode, onInteract, onHe
         </div>
         <div style={{
           fontFamily: 'var(--font-heading)',
-          fontSize: 11,
+          fontSize: 13,
           fontWeight: 500,
           textTransform: 'uppercase',
           color: 'rgba(255,255,255,0.35)',
@@ -453,8 +453,8 @@ export default function AttractMode({ facts, stories, isTvMode, onInteract, onHe
           <div
             key={scene}
             style={{
-              width: i === activeSceneIndex ? 24 : 8,
-              height: 8,
+              width: i === activeSceneIndex ? 28 : 10,
+              height: 10,
               borderRadius: 4,
               background: i === activeSceneIndex ? 'var(--aph-gold)' : 'rgba(181,168,152,0.3)',
               transition: 'width 0.5s ease, background 0.4s ease',
@@ -477,7 +477,7 @@ export default function AttractMode({ facts, stories, isTvMode, onInteract, onHe
         }}>
           <div style={{
             fontFamily: 'var(--font-heading)',
-            fontSize: 14,
+            fontSize: 18,
             fontWeight: 500,
             letterSpacing: '3px',
             textTransform: 'uppercase',
@@ -491,8 +491,8 @@ export default function AttractMode({ facts, stories, isTvMode, onInteract, onHe
             display: 'inline-block',
             animation: 'bounceDown 2s ease-in-out infinite',
           }}>
-            <svg width="20" height="12" viewBox="0 0 20 12" fill="none">
-              <path d="M1 1L10 10L19 1" stroke="rgba(242,169,0,0.6)" strokeWidth="2" strokeLinecap="round" />
+            <svg width="24" height="14" viewBox="0 0 24 14" fill="none">
+              <path d="M1 1L12 12L23 1" stroke="rgba(242,169,0,0.6)" strokeWidth="2.5" strokeLinecap="round" />
             </svg>
           </div>
         </div>

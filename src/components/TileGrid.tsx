@@ -410,7 +410,7 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
       }}>
         <div style={{
           fontFamily: 'var(--font-heading)',
-          fontSize: 11,
+          fontSize: 14,
           fontWeight: 600,
           letterSpacing: '4px',
           textTransform: 'uppercase',
@@ -421,7 +421,7 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
         </div>
         <h2 style={{
           fontFamily: 'var(--font-heading)',
-          fontSize: 'clamp(24px, 3vw, 36px)',
+          fontSize: 'clamp(28px, 3.5vw, 44px)',
           fontWeight: 700,
           color: 'var(--aph-white)',
           letterSpacing: '-0.5px',
@@ -430,7 +430,7 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
         </h2>
         <p style={{
           fontFamily: 'var(--font-body)',
-          fontSize: 15,
+          fontSize: 18,
           color: 'var(--aph-warm-gray)',
           marginTop: 8,
         }}>
@@ -499,7 +499,7 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
                 cursor: 'pointer',
                 textAlign: 'left',
                 overflow: 'hidden',
-                minHeight: isWide ? 160 : 220,
+                minHeight: isWide ? 180 : 240,
                 fontFamily: 'inherit',
                 color: 'inherit',
                 outline: 'none',
@@ -609,8 +609,8 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
                 <>
                   {/* Icon container */}
                   <div style={{
-                    width: 52,
-                    height: 52,
+                    width: 56,
+                    height: 56,
                     borderRadius: iconBorderRadius,
                     background: isFeaturedAI
                       ? 'rgba(255,255,255,0.15)'
@@ -622,24 +622,24 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
                     marginRight: 28,
                     animation: `tg-iconFloat 3s ease-in-out ${floatDelay}s infinite`,
                   }}>
-                    <Icon size={26} color={iconColor} strokeWidth={1.8} />
+                    <Icon size={28} color={iconColor} strokeWidth={1.8} />
                   </div>
 
                   {/* Center: title + tagline */}
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <h3 style={{
                       fontFamily: 'var(--font-display)',
-                      fontSize: 19,
+                      fontSize: 'clamp(20px, 2vw, 26px)',
                       fontWeight: 400,
                       color: '#FFFFFF',
-                      marginBottom: 6,
+                      marginBottom: 8,
                       letterSpacing: '-0.2px',
                     }}>
                       {story.title}
                     </h3>
                     <p style={{
                       fontFamily: 'var(--font-body)',
-                      fontSize: 14,
+                      fontSize: 16,
                       color: taglineColor,
                       lineHeight: 1.5,
                     }}>
@@ -655,7 +655,7 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
                   }}>
                     <span style={{
                       fontFamily: 'var(--font-heading)',
-                      fontSize: 28,
+                      fontSize: 'clamp(28px, 3vw, 38px)',
                       fontWeight: 800,
                       color: statColor,
                       letterSpacing: '-0.5px',
@@ -676,7 +676,7 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
                     }} />
                     <span style={{
                       fontFamily: 'var(--font-body)',
-                      fontSize: 12,
+                      fontSize: 13,
                       color: statLabelColor,
                       textTransform: 'uppercase',
                       letterSpacing: '0.5px',
@@ -691,8 +691,8 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
 
                   {/* Icon container */}
                   <div style={{
-                    width: 52,
-                    height: 52,
+                    width: 56,
+                    height: 56,
                     borderRadius: iconBorderRadius,
                     background: `color-mix(in srgb, var(${accentVar}) 15%, transparent)`,
                     display: 'flex',
@@ -701,7 +701,7 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
                     marginBottom: 18,
                     animation: `tg-iconFloat 3s ease-in-out ${floatDelay}s infinite`,
                   }}>
-                    <Icon size={26} color={`var(${accentVar})`} strokeWidth={1.8} />
+                    <Icon size={28} color={`var(${accentVar})`} strokeWidth={1.8} />
                   </div>
 
                   {/* Title */}
@@ -719,7 +719,7 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
                   {/* Tagline */}
                   <p style={{
                     fontFamily: 'var(--font-body)',
-                    fontSize: 14,
+                    fontSize: 16,
                     color: 'var(--aph-warm-gray)',
                     lineHeight: 1.5,
                     flex: 1,
@@ -775,11 +775,11 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
       {/* Keyboard shortcut hint */}
       <div style={{
         fontFamily: 'var(--font-heading)',
-        fontSize: 12,
+        fontSize: 14,
         color: 'var(--aph-warm-gray)',
         textTransform: 'uppercase',
         letterSpacing: '2px',
-        marginTop: 20,
+        marginTop: 24,
         animation: 'tg-fadeIn 0.5s ease 1.2s both',
       }}>
         Press 1&ndash;6 to select a topic
@@ -790,13 +790,13 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
         onClick={onBack}
         style={{
           marginTop: 12,
-          padding: '10px 24px',
+          padding: '12px 32px',
           background: 'transparent',
           border: '1px solid var(--aph-gold)',
           borderRadius: 24,
           color: 'rgba(255,255,255,0.5)',
           fontFamily: 'var(--font-heading)',
-          fontSize: 13,
+          fontSize: 15,
           fontWeight: 500,
           letterSpacing: '1px',
           textTransform: 'uppercase',
@@ -813,7 +813,7 @@ export default function TileGrid({ stories, onSelectTile, onBack, visitedIds }: 
           e.currentTarget.style.color = 'rgba(255,255,255,0.5)';
         }}
       >
-        Back to Attract
+        ← Restart
       </button>
     </div>
   );
