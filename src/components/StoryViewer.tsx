@@ -493,7 +493,7 @@ export default function StoryViewer({ story, onBack }: Props) {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '20px 48px',
+          padding: '24px 48px',
           background: 'rgba(0,6,12,0.5)',
           animation: 'sv-topBarSlide 0.4s ease 0.1s both',
         }}
@@ -509,13 +509,13 @@ export default function StoryViewer({ story, onBack }: Props) {
             display: 'flex',
             alignItems: 'center',
             gap: 8,
-            padding: '8px 16px',
+            padding: '10px 20px',
             background: 'rgba(255,255,255,0.06)',
             border: '1px solid rgba(255,255,255,0.1)',
             borderRadius: 24,
             color: 'rgba(255,255,255,0.7)',
             fontFamily: 'var(--font-heading)',
-            fontSize: 13,
+            fontSize: 15,
             fontWeight: 500,
             cursor: 'pointer',
             transition: 'background 0.2s ease, color 0.15s ease',
@@ -529,7 +529,7 @@ export default function StoryViewer({ story, onBack }: Props) {
             e.currentTarget.style.color = 'rgba(255,255,255,0.7)';
           }}
         >
-          <ArrowLeft size={16} />
+          <ArrowLeft size={18} />
           All Topics
         </button>
 
@@ -544,11 +544,11 @@ export default function StoryViewer({ story, onBack }: Props) {
             transform: 'translateX(-50%)',
           }}
         >
-          <Icon size={24} color={`var(${accentVar})`} strokeWidth={1.8} />
+          <Icon size={26} color={`var(${accentVar})`} strokeWidth={1.8} />
           <span
             style={{
               fontFamily: 'var(--font-heading)',
-              fontSize: 13,
+              fontSize: 16,
               fontWeight: 600,
               letterSpacing: '2px',
               textTransform: 'uppercase',
@@ -563,7 +563,7 @@ export default function StoryViewer({ story, onBack }: Props) {
         <span
           style={{
             fontFamily: 'var(--font-heading)',
-            fontSize: 13,
+            fontSize: 16,
             fontWeight: 500,
             color: 'var(--aph-warm-gray)',
             letterSpacing: '1px',
@@ -765,8 +765,8 @@ function HeroSlide({
         flexDirection: 'column',
         alignItems: 'center',
         textAlign: 'center',
-        maxWidth: 800,
-        padding: '0 32px',
+        maxWidth: 1000,
+        padding: '0 48px',
       }}
     >
       {/* Icon + label */}
@@ -796,7 +796,7 @@ function HeroSlide({
         <span
           style={{
             fontFamily: 'var(--font-heading)',
-            fontSize: 13,
+            fontSize: 18,
             fontWeight: 700,
             letterSpacing: '3px',
             textTransform: 'uppercase',
@@ -832,9 +832,9 @@ function HeroSlide({
         <span
           style={{
             position: 'relative',
-            fontFamily: 'var(--font-display)',
+            fontFamily: 'var(--font-heading)',
             fontStyle: 'normal',
-            fontSize: 'clamp(80px, 12vw, 140px)',
+            fontSize: 'clamp(88px, 14vw, 160px)',
             fontWeight: 900,
             lineHeight: 1,
             letterSpacing: '-3px',
@@ -856,7 +856,7 @@ function HeroSlide({
       <div
         style={{
           fontFamily: 'var(--font-heading)',
-          fontSize: 'clamp(16px, 2vw, 24px)',
+          fontSize: 'clamp(18px, 2.5vw, 28px)',
           fontWeight: 600,
           textTransform: 'uppercase',
           letterSpacing: '3px',
@@ -872,11 +872,11 @@ function HeroSlide({
       <div
         style={{
           fontFamily: 'var(--font-body)',
-          fontSize: 18,
+          fontSize: 'clamp(18px, 2vw, 24px)',
           color: 'var(--aph-warm-gray)',
           lineHeight: 1.6,
           marginTop: 24,
-          maxWidth: 500,
+          maxWidth: 600,
           animation: 'sv-fadeIn 0.6s ease 0.5s both',
         }}
       >
@@ -925,7 +925,7 @@ function SectionSlide({
         flexDirection: 'column',
         alignItems: isLeftAligned ? 'flex-start' : 'center',
         textAlign: isLeftAligned ? 'left' : 'center',
-        maxWidth: 800,
+        maxWidth: 1000,
         padding: '0 48px',
       }}
     >
@@ -948,7 +948,7 @@ function SectionSlide({
       <div
         style={{
           fontFamily: 'var(--font-display)',
-          fontSize: 60,
+          fontSize: 72,
           fontWeight: 400,
           fontStyle: 'italic' as const,
           color: 'var(--aph-warm-gray)',
@@ -964,9 +964,9 @@ function SectionSlide({
       {/* Section title */}
       <h2
         style={{
-          fontFamily: 'var(--font-display)',
-          fontSize: 'clamp(24px, 3.5vw, 40px)',
-          fontWeight: 400,
+          fontFamily: 'var(--font-heading)',
+          fontSize: 'clamp(28px, 4vw, 48px)',
+          fontWeight: 700,
           color: 'var(--aph-white)',
           lineHeight: 1.2,
           marginBottom: 24,
@@ -991,9 +991,9 @@ function SectionSlide({
         >
           <span
             style={{
-              fontFamily: 'var(--font-display)',
+              fontFamily: 'var(--font-heading)',
               fontStyle: 'normal',
-              fontSize: 64,
+              fontSize: 'clamp(56px, 7vw, 80px)',
               fontWeight: 800,
               color: `var(${accentVar})`,
               letterSpacing: '-1px',
@@ -1005,7 +1005,7 @@ function SectionSlide({
           <span
             style={{
               fontFamily: 'var(--font-body)',
-              fontSize: 13,
+              fontSize: 16,
               color: 'var(--aph-gold)',
               textTransform: 'uppercase',
               letterSpacing: '1.5px',
@@ -1021,11 +1021,11 @@ function SectionSlide({
       <div
         style={{
           fontFamily: 'var(--font-body)',
-          fontSize: 'clamp(15px, 1.6vw, 20px)',
+          fontSize: 'clamp(18px, 2vw, 24px)',
           fontWeight: 400,
           color: 'rgba(255,255,255,0.8)',
-          lineHeight: 1.7,
-          maxWidth: 680,
+          lineHeight: 1.6,
+          maxWidth: 780,
           animation: 'sv-fadeIn 0.6s ease 150ms both',
         }}
       >
