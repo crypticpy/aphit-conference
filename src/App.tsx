@@ -265,7 +265,6 @@ export default function App() {
           <AttractMode
             facts={attractFacts}
             stories={stories}
-            isTvMode={isTvMode}
             onInteract={goToGrid}
             onHeroBeat={handleHeroBeat}
           />

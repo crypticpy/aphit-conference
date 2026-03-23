@@ -15,7 +15,6 @@ import GradientWaves from "./scenes/GradientWaves";
 interface Props {
   facts: string[];
   stories: TileStory[];
-  isTvMode: boolean;
   onInteract: () => void;
   onHeroBeat?: () => void;
 }
@@ -168,7 +167,6 @@ function ParticlesScene({ fact, visible }: { fact: string; visible: boolean }) {
 export default function AttractMode({
   facts,
   stories,
-  isTvMode,
   onInteract,
   onHeroBeat,
 }: Props) {
@@ -246,9 +244,8 @@ export default function AttractMode({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeSceneIndex]);
 
-  // ── Click handler (laptop only) ──
+  // ── Click/touch handler — exit attract and go to grid ──
   useEffect(() => {
-    if (isTvMode) return;
     const handler = () => onInteractRef.current();
     window.addEventListener("click", handler);
     window.addEventListener("touchstart", handler);
@@ -256,7 +253,7 @@ export default function AttractMode({
       window.removeEventListener("click", handler);
       window.removeEventListener("touchstart", handler);
     };
-  }, [isTvMode]);
+  }, []);
 
   const activeScene = SCENE_SEQUENCE[activeSceneIndex];
 
@@ -265,7 +262,7 @@ export default function AttractMode({
       style={{
         position: "absolute",
         inset: 0,
-        cursor: isTvMode ? "default" : "pointer",
+        cursor: "pointer",
         overflow: "hidden",
       }}
     >
@@ -485,7 +482,7 @@ export default function AttractMode({
       <div
         style={{
           position: "absolute",
-          bottom: isTvMode ? 48 : 110,
+          bottom: 110,
           left: 0,
           right: 0,
           display: "flex",
@@ -514,51 +511,49 @@ export default function AttractMode({
         ))}
       </div>
 
-      {/* Bottom prompt (laptop only) */}
-      {!isTvMode && (
+      {/* Bottom prompt */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: 48,
+          left: 0,
+          right: 0,
+          textAlign: "center",
+          pointerEvents: "none",
+          zIndex: 10,
+          animation: "fadeIn 1s ease 1.5s both",
+        }}
+      >
         <div
           style={{
-            position: "absolute",
-            bottom: 48,
-            left: 0,
-            right: 0,
-            textAlign: "center",
-            pointerEvents: "none",
-            zIndex: 10,
-            animation: "fadeIn 1s ease 1.5s both",
+            fontFamily: "var(--font-heading)",
+            fontSize: 15,
+            fontWeight: 600,
+            letterSpacing: "5px",
+            textTransform: "uppercase",
+            color: "var(--aph-gold)",
+            animation: "pulse 3s ease-in-out infinite",
           }}
         >
-          <div
-            style={{
-              fontFamily: "var(--font-heading)",
-              fontSize: 15,
-              fontWeight: 600,
-              letterSpacing: "5px",
-              textTransform: "uppercase",
-              color: "var(--aph-gold)",
-              animation: "pulse 3s ease-in-out infinite",
-            }}
-          >
-            Click anywhere to explore
-          </div>
-          <div
-            style={{
-              marginTop: 12,
-              display: "inline-block",
-              animation: "bounceDown 2s ease-in-out infinite",
-            }}
-          >
-            <svg width="24" height="14" viewBox="0 0 24 14" fill="none">
-              <path
-                d="M1 1L12 12L23 1"
-                stroke="rgba(242,169,0,0.6)"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-              />
-            </svg>
-          </div>
+          Click anywhere to explore
         </div>
-      )}
+        <div
+          style={{
+            marginTop: 12,
+            display: "inline-block",
+            animation: "bounceDown 2s ease-in-out infinite",
+          }}
+        >
+          <svg width="24" height="14" viewBox="0 0 24 14" fill="none">
+            <path
+              d="M1 1L12 12L23 1"
+              stroke="rgba(242,169,0,0.6)"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+            />
+          </svg>
+        </div>
+      </div>
     </div>
   );
 }

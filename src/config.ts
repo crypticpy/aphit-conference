@@ -54,7 +54,7 @@ export const modeConfig: Record<AppModeKey, ModeSettings> = {
       interactive: true,
       dimWhenStory: true,
     },
-    idleTimeoutMs: null,
+    idleTimeoutMs: 180000,
     autoAdvance: {
       heroMs: 10000,
       sectionMs: 15000,
