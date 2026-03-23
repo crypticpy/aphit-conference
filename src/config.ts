@@ -106,7 +106,7 @@ export const transitionConfig = {
 export const attractConfig = {
   sceneDurations: {
     particles: 7000,
-    numberStorm: 7000,
+    numberStorm: 7400,
     dataStream: 7000,
     gradientWaves: 7000,
   },
@@ -122,10 +122,10 @@ export const attractConfig = {
   dividerDelayMs: 800,
   // NumberStorm phases
   numberStorm: {
-    swarmMs: 1800,
+    swarmMs: 1600,
     impactMs: 500,
-    holdMs: 2200,
-    scatterMs: 1400,
+    holdMs: 3500,
+    scatterMs: 1200,
     convergenceDelayMs: 200,
     swarmDelayMaxMs: 600,
   },
