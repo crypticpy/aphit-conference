@@ -436,33 +436,17 @@ export default function AttractMode({
           zIndex: 10,
         }}
       >
-        <div
+        <img
+          src={`${import.meta.env.BASE_URL}aph-logo.png`}
+          alt="Austin Public Health"
           style={{
-            fontFamily: "var(--font-heading)",
-            fontSize: 11,
-            fontWeight: 400,
-            color: "rgba(255,255,255,0.3)",
-            marginBottom: 4,
-            animation:
-              "brandSubSlideIn 1s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both",
-          }}
-        >
-          City of Austin
-        </div>
-        <div
-          style={{
-            fontFamily: "var(--font-heading)",
-            fontSize: 16,
-            fontWeight: 600,
-            textTransform: "uppercase",
-            color: "rgba(94, 198, 195, 0.7)",
-            marginBottom: 8,
+            height: 60,
+            width: "auto",
+            marginBottom: 10,
             animation:
               "brandSlideIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both",
           }}
-        >
-          Austin Public Health
-        </div>
+        />
         <div
           style={{
             fontFamily: "var(--font-heading)",
