@@ -165,13 +165,18 @@ export default function ParticleCanvas({
   const dimRef = useRef(false);
   const timeRef = useRef(0);
   const currentAlphaRef = useRef(1);
+  const interactiveRef = useRef(interactive);
 
   // Beat tracking
   const beatFrameRef = useRef(0);
   const beatActiveRef = useRef(false);
   const beatTimestampRef = useRef(0);
 
-  dimRef.current = dimmed;
+  interactiveRef.current = interactive;
+
+  useEffect(() => {
+    dimRef.current = dimmed;
+  }, [dimmed]);
 
   // Beat trigger via prop change
   useEffect(() => {
@@ -237,10 +242,15 @@ export default function ParticleCanvas({
     };
 
     resize();
-    window.addEventListener("resize", resize);
+    let resizeTimer: ReturnType<typeof setTimeout>;
+    const debouncedResize = () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(resize, 150);
+    };
+    window.addEventListener("resize", debouncedResize);
 
     const handleMouseMove = (e: MouseEvent) => {
-      if (interactive) {
+      if (interactiveRef.current) {
         mouseRef.current = { x: e.clientX, y: e.clientY };
       }
     };
@@ -255,7 +265,7 @@ export default function ParticleCanvas({
 
     // ── Animation loop ──
     const animate = () => {
-      timeRef.current += 1;
+      timeRef.current = (timeRef.current + 1) % 100000;
       const time = timeRef.current;
       const w = window.innerWidth;
       const h = window.innerHeight;
@@ -335,7 +345,7 @@ export default function ParticleCanvas({
         }
 
         // Mouse: gentle repulsion
-        if (interactive && mouse.x > 0) {
+        if (interactiveRef.current && mouse.x > 0) {
           const mdx = p.x - mouse.x;
           const mdy = p.y - mouse.y;
           const mDist = Math.sqrt(mdx * mdx + mdy * mdy);
@@ -433,14 +443,7 @@ export default function ParticleCanvas({
               connConfig.alphaMultiplier *
               currentAlphaRef.current;
 
-            const grad = ctx.createLinearGradient(
-              particles[i].x,
-              particles[i].y,
-              particles[j].x,
-              particles[j].y,
-            );
-            grad.addColorStop(0, `rgba(${particles[i].color},${lineAlpha})`);
-            grad.addColorStop(1, `rgba(${particles[j].color},${lineAlpha})`);
+            ctx.strokeStyle = `rgba(${particles[i].color},${lineAlpha})`;
 
             ctx.beginPath();
             ctx.moveTo(particles[i].x, particles[i].y);
@@ -461,7 +464,6 @@ export default function ParticleCanvas({
               ctx.lineTo(particles[j].x, particles[j].y);
             }
 
-            ctx.strokeStyle = grad;
             ctx.lineWidth = 0.5;
             ctx.stroke();
           }
@@ -474,11 +476,12 @@ export default function ParticleCanvas({
     animFrameRef.current = requestAnimationFrame(animate);
 
     return () => {
-      window.removeEventListener("resize", resize);
+      clearTimeout(resizeTimer);
+      window.removeEventListener("resize", debouncedResize);
       window.removeEventListener("mousemove", handleMouseMove);
       cancelAnimationFrame(animFrameRef.current);
     };
-  }, [interactive, createParticles]);
+  }, [createParticles]);
 
   return (
     <canvas

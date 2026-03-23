@@ -1,5 +1,5 @@
-import { useRef, useEffect, useCallback } from 'react';
-import { WordReveal } from '../shared/WordReveal';
+import { useRef, useEffect, useCallback } from "react";
+import { WordReveal } from "../shared/WordReveal";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types
@@ -12,12 +12,12 @@ interface Props {
 }
 
 interface RainDrop {
-  x: number;           // column x position
-  headY: number;       // current position of the leading character
-  speed: number;       // pixels per frame the head moves down
+  x: number; // column x position
+  headY: number; // current position of the leading character
+  speed: number; // pixels per frame the head moves down
   trailLength: number; // how many characters in the trail
-  chars: string[];     // character at each trail position (cycled randomly)
-  charSize: number;    // font size for this column
+  chars: string[]; // character at each trail position (cycled randomly)
+  charSize: number; // font size for this column
   colorR: number;
   colorG: number;
   colorB: number;
@@ -27,13 +27,16 @@ interface RainDrop {
 // Constants
 // ═══════════════════════════════════════════════════════════════════════════
 
-const CHARS = '0123456789ABCDEFabcdef<>{}[]|/\\=+-*@#$%ァイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン'.split('');
+const CHARS =
+  "0123456789ABCDEFabcdef<>{}[]|/\\=+-*@#$%ァイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン".split(
+    "",
+  );
 
 const COLUMN_COLORS = [
-  { r: 0, g: 123, b: 131 },   // --aph-teal
-  { r: 77, g: 168, b: 218 },  // --aph-sky-blue
-  { r: 94, g: 198, b: 195 },  // --aph-light-teal
-  { r: 120, g: 190, b: 32 },  // --aph-green
+  { r: 0, g: 123, b: 131 }, // --aph-teal
+  { r: 77, g: 168, b: 218 }, // --aph-sky-blue
+  { r: 94, g: 198, b: 195 }, // --aph-light-teal
+  { r: 120, g: 190, b: 32 }, // --aph-green
 ];
 
 const COLUMN_COUNT = 35;
@@ -70,7 +73,11 @@ function randomChar(): string {
 // RainDrop factory
 // ═══════════════════════════════════════════════════════════════════════════
 
-function createRainDrop(x: number, screenHeight: number, staggerStart: boolean): RainDrop {
+function createRainDrop(
+  x: number,
+  screenHeight: number,
+  staggerStart: boolean,
+): RainDrop {
   const color = pickRandom(COLUMN_COLORS);
   const charSize = randomInt(FONT_SIZE_MIN, FONT_SIZE_MAX);
   const trailLength = randomInt(TRAIL_LENGTH_MIN, TRAIL_LENGTH_MAX);
@@ -116,12 +123,17 @@ function createAllDrops(width: number, height: number): RainDrop[] {
 // Component
 // ═══════════════════════════════════════════════════════════════════════════
 
-export default function DataStream({ fact, visible, accentColor: _ac = '--aph-teal' }: Props) {
+export default function DataStream({
+  fact,
+  visible,
+  accentColor: _ac = "--aph-teal",
+}: Props) {
   void _ac; // reserved for future per-scene color theming
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const dropsRef = useRef<RainDrop[]>([]);
   const animFrameRef = useRef<number>(0);
   const dprRef = useRef(1);
+  const sizeRef = useRef({ w: window.innerWidth, h: window.innerHeight });
 
   // ── Build / rebuild drops on resize ──
   const initDrops = useCallback((width: number, height: number) => {
@@ -133,7 +145,7 @@ export default function DataStream({ fact, visible, accentColor: _ac = '--aph-te
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext('2d', { alpha: true });
+    const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
 
     const resize = () => {
@@ -141,6 +153,8 @@ export default function DataStream({ fact, visible, accentColor: _ac = '--aph-te
       dprRef.current = dpr;
       const w = window.innerWidth;
       const h = window.innerHeight;
+      sizeRef.current.w = w;
+      sizeRef.current.h = h;
       canvas.width = w * dpr;
       canvas.height = h * dpr;
       canvas.style.width = `${w}px`;
@@ -153,16 +167,17 @@ export default function DataStream({ fact, visible, accentColor: _ac = '--aph-te
     };
 
     resize();
-    window.addEventListener('resize', resize);
+    window.addEventListener("resize", resize);
 
     // ── Animation loop ──
     const animate = () => {
-      const w = window.innerWidth;
-      const h = window.innerHeight;
+      const { w, h } = sizeRef.current;
       const drops = dropsRef.current;
 
       // Fade-to-black: semi-transparent fill preserves trailing ghost effect
       ctx.clearRect(0, 0, w, h);
+
+      let lastFont = "";
 
       for (let d = 0; d < drops.length; d++) {
         const drop = drops[d];
@@ -182,13 +197,14 @@ export default function DataStream({ fact, visible, accentColor: _ac = '--aph-te
         const glowTop = drop.headY - drop.trailLength * charSpacing;
         const glowBottom = drop.headY;
         if (glowBottom > 0 && glowTop < h) {
-          const gradient = ctx.createLinearGradient(drop.x, Math.max(glowTop, 0), drop.x, Math.min(glowBottom, h));
-          gradient.addColorStop(0, `rgba(${drop.colorR},${drop.colorG},${drop.colorB},0)`);
-          gradient.addColorStop(0.3, `rgba(${drop.colorR},${drop.colorG},${drop.colorB},0.04)`);
-          gradient.addColorStop(0.7, `rgba(${drop.colorR},${drop.colorG},${drop.colorB},0.04)`);
-          gradient.addColorStop(1, `rgba(${drop.colorR},${drop.colorG},${drop.colorB},0)`);
-          ctx.fillStyle = gradient;
-          ctx.fillRect(drop.x - drop.charSize * 0.4, Math.max(glowTop, 0), drop.charSize * 0.8, Math.min(glowBottom, h) - Math.max(glowTop, 0));
+          const glowAlpha = 0.035;
+          ctx.fillStyle = `rgba(${drop.colorR},${drop.colorG},${drop.colorB},${glowAlpha})`;
+          ctx.fillRect(
+            drop.x - drop.charSize * 0.4,
+            Math.max(glowTop, 0),
+            drop.charSize * 0.8,
+            Math.min(glowBottom, h) - Math.max(glowTop, 0),
+          );
 
           // Subtle 1px column glow line
           ctx.strokeStyle = `rgba(${drop.colorR},${drop.colorG},${drop.colorB},0.04)`;
@@ -200,9 +216,13 @@ export default function DataStream({ fact, visible, accentColor: _ac = '--aph-te
         }
 
         // ── 4. Draw characters from head going upward ──
-        ctx.font = `600 ${drop.charSize}px ${MONO_FONT}`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
+        const fontStr = `600 ${drop.charSize}px ${MONO_FONT}`;
+        if (fontStr !== lastFont) {
+          ctx.font = fontStr;
+          lastFont = fontStr;
+        }
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
 
         for (let i = 0; i < drop.trailLength; i++) {
           const charY = drop.headY - i * charSpacing;
@@ -213,20 +233,40 @@ export default function DataStream({ fact, visible, accentColor: _ac = '--aph-te
           const char = drop.chars[i];
 
           if (i === 0) {
-            // ── Head character: brightest, white-tinted, with glow ──
+            // ── Head character: brightest, white-tinted, with radial glow ──
+            // Draw glow circle behind head character
+            const glowRadius = drop.charSize * 1.2;
+            const glow = ctx.createRadialGradient(
+              drop.x,
+              charY,
+              0,
+              drop.x,
+              charY,
+              glowRadius,
+            );
+            glow.addColorStop(
+              0,
+              `rgba(${drop.colorR},${drop.colorG},${drop.colorB},0.4)`,
+            );
+            glow.addColorStop(
+              1,
+              `rgba(${drop.colorR},${drop.colorG},${drop.colorB},0)`,
+            );
+            ctx.fillStyle = glow;
+            ctx.fillRect(
+              drop.x - glowRadius,
+              charY - glowRadius,
+              glowRadius * 2,
+              glowRadius * 2,
+            );
+
+            // Draw head character (no shadow)
             // Mix 50% white into the column color for the head
             const headR = Math.round(drop.colorR + (255 - drop.colorR) * 0.5);
             const headG = Math.round(drop.colorG + (255 - drop.colorG) * 0.5);
             const headB = Math.round(drop.colorB + (255 - drop.colorB) * 0.5);
-
-            ctx.shadowColor = `rgba(${drop.colorR},${drop.colorG},${drop.colorB},0.8)`;
-            ctx.shadowBlur = 16;
             ctx.fillStyle = `rgba(${headR},${headG},${headB},0.95)`;
             ctx.fillText(char, drop.x, charY);
-
-            // Reset shadow
-            ctx.shadowColor = 'transparent';
-            ctx.shadowBlur = 0;
           } else {
             // ── Trail characters: exponential decay from 0.91 to 0.1 ──
             // t goes from 0 (just behind head) to 1 (end of trail)
@@ -236,8 +276,10 @@ export default function DataStream({ fact, visible, accentColor: _ac = '--aph-te
             // 0.1 = 0.91 * e^(-k) => k = -ln(0.1/0.91) = ln(9.1) ~= 2.208
             const k = 2.208;
             const alpha = 0.91 * Math.exp(-k * t);
+            // Quantize to 2 decimal places using bit tricks instead of toFixed
+            const quantAlpha = ((alpha * 100 + 0.5) | 0) / 100;
 
-            ctx.fillStyle = `rgba(${drop.colorR},${drop.colorG},${drop.colorB},${alpha.toFixed(3)})`;
+            ctx.fillStyle = `rgba(${drop.colorR},${drop.colorG},${drop.colorB},${quantAlpha})`;
             ctx.fillText(char, drop.x, charY);
           }
         }
@@ -253,10 +295,10 @@ export default function DataStream({ fact, visible, accentColor: _ac = '--aph-te
           drop.colorB = color.b;
           drop.charSize = randomInt(FONT_SIZE_MIN, FONT_SIZE_MAX);
 
-          // Rebuild chars array for new trail length
-          drop.chars = [];
+          // Reuse chars array — adjust length and fill
+          drop.chars.length = drop.trailLength;
           for (let j = 0; j < drop.trailLength; j++) {
-            drop.chars.push(randomChar());
+            drop.chars[j] = randomChar();
           }
         }
       }
@@ -267,7 +309,7 @@ export default function DataStream({ fact, visible, accentColor: _ac = '--aph-te
     animFrameRef.current = requestAnimationFrame(animate);
 
     return () => {
-      window.removeEventListener('resize', resize);
+      window.removeEventListener("resize", resize);
       cancelAnimationFrame(animFrameRef.current);
     };
   }, [initDrops]);
@@ -275,56 +317,56 @@ export default function DataStream({ fact, visible, accentColor: _ac = '--aph-te
   return (
     <div
       style={{
-        position: 'absolute',
+        position: "absolute",
         inset: 0,
-        overflow: 'hidden',
+        overflow: "hidden",
       }}
     >
       {/* Rain canvas */}
       <canvas
         ref={canvasRef}
         style={{
-          position: 'absolute',
+          position: "absolute",
           inset: 0,
-          width: '100%',
-          height: '100%',
-          pointerEvents: 'none',
+          width: "100%",
+          height: "100%",
+          pointerEvents: "none",
         }}
       />
 
       {/* Vignette overlay to soften edges */}
       <div
         style={{
-          position: 'absolute',
+          position: "absolute",
           inset: 0,
           background:
-            'radial-gradient(ellipse at center, transparent 20%, rgba(0,4,8,0.8) 100%)',
-          pointerEvents: 'none',
+            "radial-gradient(ellipse at center, transparent 20%, rgba(0,4,8,0.8) 100%)",
+          pointerEvents: "none",
         }}
       />
 
       {/* Fact overlay text */}
       <div
         style={{
-          position: 'absolute',
+          position: "absolute",
           inset: 0,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '0 48px',
-          pointerEvents: 'none',
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "0 48px",
+          pointerEvents: "none",
           zIndex: 1,
         }}
       >
         <p
           style={{
-            fontFamily: 'var(--font-heading)',
-            fontSize: 'clamp(32px, 5vw, 64px)',
+            fontFamily: "var(--font-heading)",
+            fontSize: "clamp(32px, 5vw, 64px)",
             fontWeight: 800,
-            color: 'var(--aph-white)',
-            textAlign: 'center',
+            color: "var(--aph-white)",
+            textAlign: "center",
             lineHeight: 1.25,
-            letterSpacing: '-0.5px',
+            letterSpacing: "-0.5px",
             maxWidth: 900,
             textShadow: `
               0 0 40px rgba(0,4,8,0.95),

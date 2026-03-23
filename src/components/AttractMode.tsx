@@ -136,7 +136,7 @@ function ParticlesScene({ fact, visible }: { fact: string; visible: boolean }) {
             margin: "0 auto 40px",
             opacity: visible ? 1 : 0,
             transform: visible ? "scaleX(1)" : "scaleX(0)",
-            transition: `all 0.6s ease ${dividerDelayMs}ms`,
+            transition: `opacity 0.6s ease ${dividerDelayMs}ms, transform 0.6s ease ${dividerDelayMs}ms`,
           }}
         />
 
@@ -321,6 +321,7 @@ export default function AttractMode({
           zIndex: 2,
           opacity: activeScene === "particles" ? 1 : 0,
           transition: `opacity ${CROSSFADE_MS}ms ease`,
+          willChange: "opacity",
           pointerEvents: "none",
         }}
       >
@@ -341,6 +342,7 @@ export default function AttractMode({
           zIndex: 2,
           opacity: activeScene === "numberStorm" ? 1 : 0,
           transition: `opacity ${CROSSFADE_MS}ms ease`,
+          willChange: "opacity",
           pointerEvents: "none",
         }}
       >
@@ -363,6 +365,7 @@ export default function AttractMode({
           zIndex: 2,
           opacity: activeScene === "dataStream" ? 1 : 0,
           transition: `opacity ${CROSSFADE_MS}ms ease`,
+          willChange: "opacity",
           pointerEvents: "none",
         }}
       >
@@ -383,6 +386,7 @@ export default function AttractMode({
           zIndex: 2,
           opacity: activeScene === "gradientWaves" ? 1 : 0,
           transition: `opacity ${CROSSFADE_MS}ms ease`,
+          willChange: "opacity",
           pointerEvents: "none",
         }}
       >

@@ -6,7 +6,6 @@ interface Props {
   stat: string; // e.g. "500K+", "200+", "30+", "80+"
   label: string; // e.g. "HEALTH RECORDS PROTECTED"
   accentColor: string; // CSS variable name like "--aph-teal"
-  onComplete?: () => void;
 }
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -144,20 +143,23 @@ const keyframeStyles = `
 // NumberStorm Component
 // ═════════════════════════════════════════════════════════════════════════════
 
-export default function NumberStorm({
-  stat,
-  label,
-  accentColor,
-  onComplete,
-}: Props) {
+export default function NumberStorm({ stat, label, accentColor }: Props) {
   const [phase, setPhase] = useState<
     "swarm" | "impact" | "hold" | "scatter" | "done"
   >("swarm");
   const [swarmConverged, setSwarmConverged] = useState(false);
-  const [scatterChars, setScatterChars] = useState<ScatterChar[]>([]);
+  // Pre-build scatter chars so stat spans are always rendered (Fix 3).
+  // Initialised eagerly via lazy-init to avoid reading a ref during render.
+  const [scatterChars, setScatterChars] = useState<ScatterChar[]>(() =>
+    stat.split("").map((char, index) => ({
+      char,
+      index,
+      exitX: randomRange(-600, 600),
+      exitY: randomRange(-600, 600),
+      exitRotation: randomRange(-360, 360),
+    })),
+  );
   const timeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
-  const onCompleteRef = useRef(onComplete);
-  onCompleteRef.current = onComplete;
 
   // Generate swarm numbers once on mount
   const swarmNumbers = useMemo(() => generateSwarmNumbers(), []);
@@ -209,7 +211,6 @@ export default function NumberStorm({
     addTimeout(
       () => {
         setPhase("done");
-        onCompleteRef.current?.();
       },
       SWARM_DURATION + IMPACT_DURATION + HOLD_DURATION + SCATTER_DURATION,
     );
@@ -220,34 +221,52 @@ export default function NumberStorm({
     };
   }, [buildScatterChars]);
 
-  // ── Swarm number styles ──
+  // ── Swarm number styles (Fix 1: transform-only, Fix 2: fade-out, Fix 5: scoped will-change) ──
   const getSwarmNumberStyle = useCallback(
     (num: SwarmNumber): React.CSSProperties => {
-      const converged = swarmConverged && phase === "swarm";
-      const visible = phase === "swarm";
+      const inSwarm = phase === "swarm";
+      const converged = swarmConverged && inSwarm;
 
-      if (!visible) {
-        return { display: "none" };
+      // Fix 2: When phase !== "swarm", fade out smoothly instead of display:none
+      if (!inSwarm) {
+        return {
+          position: "absolute",
+          left: 0,
+          top: 0,
+          transform: `translate(50vw, 50vh) translate(-50%, -50%) translateZ(0px) rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(0.2)`,
+          fontSize: num.size,
+          fontFamily: "var(--font-heading)",
+          fontWeight: 800,
+          color: num.color,
+          opacity: 0,
+          transition: "opacity 200ms ease",
+          pointerEvents: "none" as const,
+          textShadow: `0 0 12px ${num.color}`,
+          userSelect: "none" as const,
+          zIndex: 1,
+        };
       }
 
       const transitionDuration =
         SWARM_DURATION - NS_TIMING.convergenceDelayMs - num.delay;
 
+      // Fix 1: Use transform: translate(Xvw, Yvh) instead of left/top
+      // Fix 5: Only set willChange when converged (transition about to start / in progress)
       return {
         position: "absolute",
-        left: converged ? "50%" : `${num.startX}%`,
-        top: converged ? "50%" : `${num.startY}%`,
+        left: 0,
+        top: 0,
         transform: converged
-          ? `translate(-50%, -50%) translateZ(0px) rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(0.2)`
-          : `translate(-50%, -50%) translateZ(${num.depth}px) rotateX(${num.rotX + num.spinX}deg) rotateY(${num.rotY + num.spinY}deg) rotateZ(${num.rotZ + num.spinZ}deg)`,
+          ? `translate(50vw, 50vh) translate(-50%, -50%) translateZ(0px) rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(0.2)`
+          : `translate(${num.startX}vw, ${num.startY}vh) translate(-50%, -50%) translateZ(${num.depth}px) rotateX(${num.rotX + num.spinX}deg) rotateY(${num.rotY + num.spinY}deg) rotateZ(${num.rotZ + num.spinZ}deg)`,
         fontSize: num.size,
         fontFamily: "var(--font-heading)",
         fontWeight: 800,
         color: num.color,
         opacity: converged ? 0 : num.opacity,
-        willChange: "transform, opacity",
+        willChange: converged ? "transform, opacity" : undefined,
         transition: converged
-          ? `left ${transitionDuration}ms cubic-bezier(0.23, 1, 0.32, 1) ${num.delay}ms, top ${transitionDuration}ms cubic-bezier(0.23, 1, 0.32, 1) ${num.delay}ms, transform ${transitionDuration}ms cubic-bezier(0.23, 1, 0.32, 1) ${num.delay}ms, opacity ${transitionDuration * 0.6}ms ease ${num.delay + transitionDuration * 0.4}ms`
+          ? `transform ${transitionDuration}ms cubic-bezier(0.23, 1, 0.32, 1) ${num.delay}ms, opacity ${transitionDuration * 0.6}ms ease ${num.delay + transitionDuration * 0.4}ms`
           : "none",
         pointerEvents: "none" as const,
         textShadow: `0 0 12px ${num.color}`,
@@ -258,7 +277,7 @@ export default function NumberStorm({
     [swarmConverged, phase],
   );
 
-  // ── Stat character style (for scatter phase) ──
+  // ── Stat character style (Fix 3: always render spans, apply scatter transforms only when scattering) ──
   const getStatCharStyle = useCallback(
     (sc: ScatterChar, isScattering: boolean): React.CSSProperties => {
       return {
@@ -283,6 +302,8 @@ export default function NumberStorm({
   const showLabel = phase === "hold";
   const isLabelExiting = phase === "scatter";
 
+  // scatterChars is always populated (initialised eagerly, updated at hold→scatter)
+
   return (
     <div
       style={{
@@ -298,8 +319,8 @@ export default function NumberStorm({
     >
       <style>{keyframeStyles}</style>
 
-      {/* ── Swarm numbers ── */}
-      {phase === "swarm" && (
+      {/* ── Swarm numbers (Fix 2: always rendered during swarm + fade-out after) ── */}
+      {(phase === "swarm" || phase === "impact") && (
         <div
           style={{
             position: "absolute",
@@ -333,7 +354,7 @@ export default function NumberStorm({
         />
       )}
 
-      {/* ── Stat display ── */}
+      {/* ── Stat display (Fix 3: always render spans, Fix 4: separate impact/glow animations) ── */}
       {showStat && (
         <div
           style={{
@@ -344,35 +365,41 @@ export default function NumberStorm({
             pointerEvents: "none",
           }}
         >
-          {/* Stat number */}
+          {/* Stat number — Fix 4: wrapper div for impact animation, inner div for glow */}
           <div
             style={{
-              fontFamily: "var(--font-heading)",
-              fontSize: "clamp(80px, 12vw, 140px)",
-              fontWeight: 900,
-              lineHeight: 1,
-              letterSpacing: "-4px",
-              background: `linear-gradient(135deg, var(${accentColor}), color-mix(in srgb, var(${accentColor}) 60%, white))`,
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
               animation: isImpact
-                ? "ns-impactScale 500ms cubic-bezier(0.16, 1, 0.3, 1) forwards"
-                : phase === "hold"
-                  ? "ns-glowPulse 2s ease-in-out infinite"
-                  : undefined,
-              color: `var(${accentColor})`,
-              textShadow: "none",
-              userSelect: "none",
+                ? "ns-impactScale 500ms cubic-bezier(0.16, 1, 0.3, 1)"
+                : undefined,
             }}
           >
-            {isScattering
-              ? scatterChars.map((sc) => (
-                  <span key={sc.index} style={getStatCharStyle(sc, true)}>
-                    {sc.char === " " ? "\u00A0" : sc.char}
-                  </span>
-                ))
-              : stat}
+            <div
+              style={{
+                fontFamily: "var(--font-heading)",
+                fontSize: "clamp(80px, 12vw, 140px)",
+                fontWeight: 900,
+                lineHeight: 1,
+                letterSpacing: "-4px",
+                background: `linear-gradient(135deg, var(${accentColor}), color-mix(in srgb, var(${accentColor}) 60%, white))`,
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+                animation:
+                  phase === "hold"
+                    ? "ns-glowPulse 2s ease-in-out infinite both"
+                    : undefined,
+                color: `var(${accentColor})`,
+                textShadow: "none",
+                userSelect: "none",
+              }}
+            >
+              {/* Fix 3: Always render individual spans for stat characters */}
+              {scatterChars.map((sc) => (
+                <span key={sc.index} style={getStatCharStyle(sc, isScattering)}>
+                  {sc.char === " " ? "\u00A0" : sc.char}
+                </span>
+              ))}
+            </div>
           </div>
 
           {/* Label */}
