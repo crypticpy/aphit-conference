@@ -100,6 +100,45 @@ export const transitionConfig = {
   entranceDelayFactor: 0.12,
 } as const;
 
+// ── Attract mode timing ─────────────────────
+// All durations in ms. Change here, not in components.
+
+export const attractConfig = {
+  sceneDurations: {
+    particles: 7000,
+    numberStorm: 7000,
+    dataStream: 7000,
+    gradientWaves: 7000,
+  },
+  crossfadeMs: 700,
+  contentDelayFirstMs: 400,
+  contentDelayMs: 100,
+  contentExitLeadMs: 300,
+  edgeGlowMs: 700,
+  // ParticlesScene title word reveal
+  titleLine1DelayMs: 200,
+  titleLine2DelayMs: 500,
+  titleWordStaggerMs: 100,
+  dividerDelayMs: 800,
+  // NumberStorm phases
+  numberStorm: {
+    swarmMs: 1800,
+    impactMs: 500,
+    holdMs: 2200,
+    scatterMs: 1400,
+    convergenceDelayMs: 200,
+    swarmDelayMaxMs: 600,
+  },
+  // WordReveal timing
+  wordReveal: {
+    staggerMs: 45,
+    enterTransformMs: 500,
+    enterOpacityMs: 400,
+    exitTransformMs: 350,
+    exitOpacityMs: 280,
+  },
+} as const;
+
 // ── Helper: resolve mode from URL ───────────
 
 export function resolveAppMode(): AppModeKey {

@@ -1,9 +1,10 @@
-import type React from 'react';
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import type React from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { attractConfig } from "../../config";
 
 interface Props {
-  stat: string;        // e.g. "500K+", "200+", "30+", "80+"
-  label: string;       // e.g. "HEALTH RECORDS PROTECTED"
+  stat: string; // e.g. "500K+", "200+", "30+", "80+"
+  label: string; // e.g. "HEALTH RECORDS PROTECTED"
   accentColor: string; // CSS variable name like "--aph-teal"
   onComplete?: () => void;
 }
@@ -13,19 +14,19 @@ interface Props {
 interface SwarmNumber {
   id: number;
   char: string;
-  startX: number;   // % from left edge
-  startY: number;   // % from top edge
-  size: number;      // px
+  startX: number; // % from left edge
+  startY: number; // % from top edge
+  size: number; // px
   opacity: number;
   color: string;
-  rotX: number;      // initial rotation degrees
+  rotX: number; // initial rotation degrees
   rotY: number;
   rotZ: number;
-  spinX: number;     // rotation speed multiplier
+  spinX: number; // rotation speed multiplier
   spinY: number;
   spinZ: number;
-  delay: number;     // stagger delay in ms
-  depth: number;     // translateZ for 3D depth
+  delay: number; // stagger delay in ms
+  depth: number; // translateZ for 3D depth
 }
 
 interface ScatterChar {
@@ -40,17 +41,18 @@ interface ScatterChar {
 
 const SWARM_COUNT = 80;
 const BRAND_COLORS = [
-  'var(--aph-teal)',
-  'var(--aph-sky-blue)',
-  'var(--aph-light-teal)',
-  'var(--aph-green)',
+  "var(--aph-teal)",
+  "var(--aph-sky-blue)",
+  "var(--aph-light-teal)",
+  "var(--aph-green)",
 ];
 
-// Phase timing (ms)
-const SWARM_DURATION = 2500;
-const IMPACT_DURATION = 500;
-const HOLD_DURATION = 3000;
-const SCATTER_DURATION = 2000;
+// Phase timing from centralized config
+const { numberStorm: NS_TIMING } = attractConfig;
+const SWARM_DURATION = NS_TIMING.swarmMs;
+const IMPACT_DURATION = NS_TIMING.impactMs;
+const HOLD_DURATION = NS_TIMING.holdMs;
+const SCATTER_DURATION = NS_TIMING.scatterMs;
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -62,10 +64,14 @@ function randomEdgePosition(): { x: number; y: number } {
   // Spawn numbers from outside the visible area on all sides
   const side = Math.floor(Math.random() * 4);
   switch (side) {
-    case 0: return { x: randomRange(-20, 120), y: randomRange(-30, -10) };   // top
-    case 1: return { x: randomRange(-20, 120), y: randomRange(110, 130) };   // bottom
-    case 2: return { x: randomRange(-30, -10), y: randomRange(-20, 120) };   // left
-    default: return { x: randomRange(110, 130), y: randomRange(-20, 120) };  // right
+    case 0:
+      return { x: randomRange(-20, 120), y: randomRange(-30, -10) }; // top
+    case 1:
+      return { x: randomRange(-20, 120), y: randomRange(110, 130) }; // bottom
+    case 2:
+      return { x: randomRange(-30, -10), y: randomRange(-20, 120) }; // left
+    default:
+      return { x: randomRange(110, 130), y: randomRange(-20, 120) }; // right
   }
 }
 
@@ -86,7 +92,7 @@ function generateSwarmNumbers(): SwarmNumber[] {
       spinX: randomRange(-720, 720),
       spinY: randomRange(-720, 720),
       spinZ: randomRange(-540, 540),
-      delay: randomRange(0, 800),
+      delay: randomRange(0, NS_TIMING.swarmDelayMaxMs),
       depth: randomRange(-400, 200),
     };
   });
@@ -138,8 +144,15 @@ const keyframeStyles = `
 // NumberStorm Component
 // ═════════════════════════════════════════════════════════════════════════════
 
-export default function NumberStorm({ stat, label, accentColor, onComplete }: Props) {
-  const [phase, setPhase] = useState<'swarm' | 'impact' | 'hold' | 'scatter' | 'done'>('swarm');
+export default function NumberStorm({
+  stat,
+  label,
+  accentColor,
+  onComplete,
+}: Props) {
+  const [phase, setPhase] = useState<
+    "swarm" | "impact" | "hold" | "scatter" | "done"
+  >("swarm");
   const [swarmConverged, setSwarmConverged] = useState(false);
   const [scatterChars, setScatterChars] = useState<ScatterChar[]>([]);
   const timeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
@@ -151,7 +164,7 @@ export default function NumberStorm({ stat, label, accentColor, onComplete }: Pr
 
   // Generate scatter directions for stat characters
   const buildScatterChars = useCallback((): ScatterChar[] => {
-    return stat.split('').map((char, index) => ({
+    return stat.split("").map((char, index) => ({
       char,
       index,
       exitX: randomRange(-600, 600),
@@ -171,29 +184,35 @@ export default function NumberStorm({ stat, label, accentColor, onComplete }: Pr
     // Trigger convergence animation partway through swarm phase
     addTimeout(() => {
       setSwarmConverged(true);
-    }, 200);
+    }, NS_TIMING.convergenceDelayMs);
 
     // Phase: swarm -> impact
     addTimeout(() => {
-      setPhase('impact');
+      setPhase("impact");
     }, SWARM_DURATION);
 
     // Phase: impact -> hold
     addTimeout(() => {
-      setPhase('hold');
+      setPhase("hold");
     }, SWARM_DURATION + IMPACT_DURATION);
 
     // Phase: hold -> scatter
-    addTimeout(() => {
-      setScatterChars(buildScatterChars());
-      setPhase('scatter');
-    }, SWARM_DURATION + IMPACT_DURATION + HOLD_DURATION);
+    addTimeout(
+      () => {
+        setScatterChars(buildScatterChars());
+        setPhase("scatter");
+      },
+      SWARM_DURATION + IMPACT_DURATION + HOLD_DURATION,
+    );
 
     // Phase: scatter -> done
-    addTimeout(() => {
-      setPhase('done');
-      onCompleteRef.current?.();
-    }, SWARM_DURATION + IMPACT_DURATION + HOLD_DURATION + SCATTER_DURATION);
+    addTimeout(
+      () => {
+        setPhase("done");
+        onCompleteRef.current?.();
+      },
+      SWARM_DURATION + IMPACT_DURATION + HOLD_DURATION + SCATTER_DURATION,
+    );
 
     return () => {
       timeoutsRef.current.forEach(clearTimeout);
@@ -204,34 +223,35 @@ export default function NumberStorm({ stat, label, accentColor, onComplete }: Pr
   // ── Swarm number styles ──
   const getSwarmNumberStyle = useCallback(
     (num: SwarmNumber): React.CSSProperties => {
-      const converged = swarmConverged && (phase === 'swarm');
-      const visible = phase === 'swarm';
+      const converged = swarmConverged && phase === "swarm";
+      const visible = phase === "swarm";
 
       if (!visible) {
-        return { display: 'none' };
+        return { display: "none" };
       }
 
-      const transitionDuration = SWARM_DURATION - 200 - num.delay;
+      const transitionDuration =
+        SWARM_DURATION - NS_TIMING.convergenceDelayMs - num.delay;
 
       return {
-        position: 'absolute',
-        left: converged ? '50%' : `${num.startX}%`,
-        top: converged ? '50%' : `${num.startY}%`,
+        position: "absolute",
+        left: converged ? "50%" : `${num.startX}%`,
+        top: converged ? "50%" : `${num.startY}%`,
         transform: converged
           ? `translate(-50%, -50%) translateZ(0px) rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(0.2)`
           : `translate(-50%, -50%) translateZ(${num.depth}px) rotateX(${num.rotX + num.spinX}deg) rotateY(${num.rotY + num.spinY}deg) rotateZ(${num.rotZ + num.spinZ}deg)`,
         fontSize: num.size,
-        fontFamily: 'var(--font-heading)',
+        fontFamily: "var(--font-heading)",
         fontWeight: 800,
         color: num.color,
         opacity: converged ? 0 : num.opacity,
-        willChange: 'transform, opacity',
+        willChange: "transform, opacity",
         transition: converged
           ? `left ${transitionDuration}ms cubic-bezier(0.23, 1, 0.32, 1) ${num.delay}ms, top ${transitionDuration}ms cubic-bezier(0.23, 1, 0.32, 1) ${num.delay}ms, transform ${transitionDuration}ms cubic-bezier(0.23, 1, 0.32, 1) ${num.delay}ms, opacity ${transitionDuration * 0.6}ms ease ${num.delay + transitionDuration * 0.4}ms`
-          : 'none',
-        pointerEvents: 'none' as const,
+          : "none",
+        pointerEvents: "none" as const,
         textShadow: `0 0 12px ${num.color}`,
-        userSelect: 'none' as const,
+        userSelect: "none" as const,
         zIndex: 1,
       };
     },
@@ -242,50 +262,51 @@ export default function NumberStorm({ stat, label, accentColor, onComplete }: Pr
   const getStatCharStyle = useCallback(
     (sc: ScatterChar, isScattering: boolean): React.CSSProperties => {
       return {
-        display: 'inline-block',
+        display: "inline-block",
         transition: isScattering
           ? `transform ${SCATTER_DURATION * 0.8}ms cubic-bezier(0.55, 0, 1, 0.45), opacity ${SCATTER_DURATION * 0.6}ms ease`
-          : 'none',
+          : "none",
         transform: isScattering
           ? `translate(${sc.exitX}px, ${sc.exitY}px) rotate(${sc.exitRotation}deg) scale(0.3)`
-          : 'none',
+          : "none",
         opacity: isScattering ? 0 : 1,
-        willChange: isScattering ? 'transform, opacity' : undefined,
+        willChange: isScattering ? "transform, opacity" : undefined,
       };
     },
     [],
   );
 
-  const showStat = phase === 'impact' || phase === 'hold' || phase === 'scatter';
-  const isImpact = phase === 'impact';
-  const isScattering = phase === 'scatter';
-  const showLabel = phase === 'hold';
-  const isLabelExiting = phase === 'scatter';
+  const showStat =
+    phase === "impact" || phase === "hold" || phase === "scatter";
+  const isImpact = phase === "impact";
+  const isScattering = phase === "scatter";
+  const showLabel = phase === "hold";
+  const isLabelExiting = phase === "scatter";
 
   return (
     <div
       style={{
-        position: 'absolute',
+        position: "absolute",
         inset: 0,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        overflow: 'hidden',
-        perspective: '1000px',
-        animation: isImpact ? 'ns-screenShake 200ms ease-out' : undefined,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        overflow: "hidden",
+        perspective: "1000px",
+        animation: isImpact ? "ns-screenShake 200ms ease-out" : undefined,
       }}
     >
       <style>{keyframeStyles}</style>
 
       {/* ── Swarm numbers ── */}
-      {phase === 'swarm' && (
+      {phase === "swarm" && (
         <div
           style={{
-            position: 'absolute',
+            position: "absolute",
             inset: 0,
-            perspective: '800px',
-            perspectiveOrigin: '50% 50%',
-            transformStyle: 'preserve-3d',
+            perspective: "800px",
+            perspectiveOrigin: "50% 50%",
+            transformStyle: "preserve-3d",
           }}
         >
           {swarmNumbers.map((num) => (
@@ -300,13 +321,13 @@ export default function NumberStorm({ stat, label, accentColor, onComplete }: Pr
       {isImpact && (
         <div
           style={{
-            position: 'absolute',
+            position: "absolute",
             width: 300,
             height: 300,
-            borderRadius: '50%',
+            borderRadius: "50%",
             background: `radial-gradient(circle, color-mix(in srgb, var(${accentColor}) 40%, transparent), transparent 70%)`,
-            animation: 'ns-flashPulse 500ms ease-out forwards',
-            pointerEvents: 'none',
+            animation: "ns-flashPulse 500ms ease-out forwards",
+            pointerEvents: "none",
             zIndex: 2,
           }}
         />
@@ -316,63 +337,61 @@ export default function NumberStorm({ stat, label, accentColor, onComplete }: Pr
       {showStat && (
         <div
           style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
             zIndex: 10,
-            pointerEvents: 'none',
+            pointerEvents: "none",
           }}
         >
           {/* Stat number */}
           <div
             style={{
-              fontFamily: 'var(--font-heading)',
-              fontSize: 'clamp(80px, 12vw, 140px)',
+              fontFamily: "var(--font-heading)",
+              fontSize: "clamp(80px, 12vw, 140px)",
               fontWeight: 900,
               lineHeight: 1,
-              letterSpacing: '-4px',
+              letterSpacing: "-4px",
               background: `linear-gradient(135deg, var(${accentColor}), color-mix(in srgb, var(${accentColor}) 60%, white))`,
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
               animation: isImpact
-                ? 'ns-impactScale 500ms cubic-bezier(0.16, 1, 0.3, 1) forwards'
-                : phase === 'hold'
-                  ? 'ns-glowPulse 2s ease-in-out infinite'
+                ? "ns-impactScale 500ms cubic-bezier(0.16, 1, 0.3, 1) forwards"
+                : phase === "hold"
+                  ? "ns-glowPulse 2s ease-in-out infinite"
                   : undefined,
               color: `var(${accentColor})`,
-              textShadow: 'none',
-              userSelect: 'none',
+              textShadow: "none",
+              userSelect: "none",
             }}
           >
-            {isScattering ? (
-              scatterChars.map((sc) => (
-                <span key={sc.index} style={getStatCharStyle(sc, true)}>
-                  {sc.char === ' ' ? '\u00A0' : sc.char}
-                </span>
-              ))
-            ) : (
-              stat
-            )}
+            {isScattering
+              ? scatterChars.map((sc) => (
+                  <span key={sc.index} style={getStatCharStyle(sc, true)}>
+                    {sc.char === " " ? "\u00A0" : sc.char}
+                  </span>
+                ))
+              : stat}
           </div>
 
           {/* Label */}
           <div
             style={{
               marginTop: 16,
-              fontFamily: 'var(--font-body)',
-              fontSize: 'clamp(16px, 2vw, 24px)',
+              fontFamily: "var(--font-body)",
+              fontSize: "clamp(16px, 2vw, 24px)",
               fontWeight: 600,
-              textTransform: 'uppercase',
-              letterSpacing: '3px',
-              color: 'rgba(255, 255, 255, 0.6)',
+              textTransform: "uppercase",
+              letterSpacing: "3px",
+              color: "rgba(255, 255, 255, 0.6)",
               animation: showLabel
-                ? 'ns-labelFadeIn 600ms cubic-bezier(0.16, 1, 0.3, 1) 200ms both'
+                ? "ns-labelFadeIn 600ms cubic-bezier(0.16, 1, 0.3, 1) 200ms both"
                 : isLabelExiting
-                  ? 'ns-labelFadeOut 400ms ease forwards'
+                  ? "ns-labelFadeOut 400ms ease forwards"
                   : undefined,
-              opacity: (showLabel || isLabelExiting) ? undefined : 0,
-              userSelect: 'none',
+              opacity: showLabel || isLabelExiting ? undefined : 0,
+              userSelect: "none",
             }}
           >
             {label}
@@ -381,15 +400,15 @@ export default function NumberStorm({ stat, label, accentColor, onComplete }: Pr
       )}
 
       {/* ── Ambient glow behind stat during hold ── */}
-      {phase === 'hold' && (
+      {phase === "hold" && (
         <div
           style={{
-            position: 'absolute',
+            position: "absolute",
             width: 500,
             height: 500,
-            borderRadius: '50%',
+            borderRadius: "50%",
             background: `radial-gradient(circle, color-mix(in srgb, var(${accentColor}) 12%, transparent), transparent 70%)`,
-            pointerEvents: 'none',
+            pointerEvents: "none",
             zIndex: 0,
           }}
         />
