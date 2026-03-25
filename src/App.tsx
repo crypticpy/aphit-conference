@@ -3,7 +3,7 @@ import ParticleCanvas from "./components/ParticleCanvas";
 import AttractMode from "./components/AttractMode";
 import TileGrid from "./components/TileGrid";
 import StoryViewer from "./components/StoryViewer";
-import { stories, attractFacts, type TileStory } from "./data/stories";
+import { stories, attractStats, type TileStory } from "./data";
 import { useIdleTimer } from "./hooks/useIdleTimer";
 import { useMediaQuery } from "./hooks/useMediaQuery";
 import {
@@ -14,6 +14,16 @@ import {
   type ScreenMode,
 } from "./config";
 import type { TileRect } from "./components/shared/types";
+
+declare global {
+  interface Window {
+    __aphit?: {
+      goToAttract: () => void;
+      goToGrid: () => void;
+      selectStory: (id: string) => void;
+    };
+  }
+}
 
 interface ScatterTile {
   id: string;
@@ -161,9 +171,11 @@ export default function App() {
 
   // Expose navigation for testing
   const navRef = useRef({ goToAttract, goToGrid, handleSelectTile, stories });
-  navRef.current = { goToAttract, goToGrid, handleSelectTile, stories };
   useEffect(() => {
-    (window as any).__aphit = {
+    navRef.current = { goToAttract, goToGrid, handleSelectTile, stories };
+  });
+  useEffect(() => {
+    window.__aphit = {
       goToAttract: () => navRef.current.goToAttract(),
       goToGrid: () => navRef.current.goToGrid(),
       selectStory: (id: string) => {
@@ -263,7 +275,7 @@ export default function App() {
           }}
         >
           <AttractMode
-            facts={attractFacts}
+            stats={attractStats}
             stories={stories}
             onInteract={goToGrid}
             onHeroBeat={handleHeroBeat}

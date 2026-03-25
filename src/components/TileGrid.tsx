@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect, useCallback } from "react";
-import type { TileStory } from "../data/stories";
+import type { TileStory } from "../data/types";
 import { iconMap } from "./shared/iconMap";
 import type { TileRect } from "./shared/types";
 import { breakpoints, gridConfig, transitionConfig } from "../config";
@@ -398,9 +398,12 @@ export default function TileGrid({
   /* ---- Re-highlight last-viewed tile on return ---- */
   useEffect(() => {
     if (lastViewedId) {
-      setGlowingId(lastViewedId);
+      const raf = requestAnimationFrame(() => setGlowingId(lastViewedId));
       const timer = window.setTimeout(() => setGlowingId(null), 1500);
-      return () => clearTimeout(timer);
+      return () => {
+        cancelAnimationFrame(raf);
+        clearTimeout(timer);
+      };
     }
   }, [lastViewedId]);
 
@@ -782,52 +785,57 @@ export default function TileGrid({
                   </div>
 
                   {/* Right: hero stat */}
-                  <div
-                    style={{
-                      flexShrink: 0,
-                      marginLeft: 28,
-                      textAlign: "right",
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontFamily: "var(--font-heading)",
-                        fontSize: "clamp(28px, 3vw, 38px)",
-                        fontWeight: 800,
-                        color: statColor,
-                        letterSpacing: "-0.5px",
-                        lineHeight: 1,
-                        display: "block",
-                      }}
-                    >
-                      <TileCountUp stat={story.heroStat} delay={counterDelay} />
-                    </span>
+                  {story.heroStat && (
                     <div
                       style={{
-                        width: 40,
-                        height: 2,
-                        background: isFeaturedAI
-                          ? "rgba(255,255,255,0.4)"
-                          : `var(${accentVar})`,
-                        opacity: isFeaturedAI ? 1 : 0.5,
-                        borderRadius: 1,
-                        marginTop: 6,
-                        marginBottom: 4,
-                        marginLeft: "auto",
-                      }}
-                    />
-                    <span
-                      style={{
-                        fontFamily: "var(--font-body)",
-                        fontSize: 13,
-                        color: statLabelColor,
-                        textTransform: "uppercase",
-                        letterSpacing: "0.5px",
+                        flexShrink: 0,
+                        marginLeft: 28,
+                        textAlign: "right",
                       }}
                     >
-                      {story.heroStatLabel}
-                    </span>
-                  </div>
+                      <span
+                        style={{
+                          fontFamily: "var(--font-heading)",
+                          fontSize: "clamp(28px, 3vw, 38px)",
+                          fontWeight: 800,
+                          color: statColor,
+                          letterSpacing: "-0.5px",
+                          lineHeight: 1,
+                          display: "block",
+                        }}
+                      >
+                        <TileCountUp
+                          stat={story.heroStat}
+                          delay={counterDelay}
+                        />
+                      </span>
+                      <div
+                        style={{
+                          width: 40,
+                          height: 2,
+                          background: isFeaturedAI
+                            ? "rgba(255,255,255,0.4)"
+                            : `var(${accentVar})`,
+                          opacity: isFeaturedAI ? 1 : 0.5,
+                          borderRadius: 1,
+                          marginTop: 6,
+                          marginBottom: 4,
+                          marginLeft: "auto",
+                        }}
+                      />
+                      <span
+                        style={{
+                          fontFamily: "var(--font-body)",
+                          fontSize: 13,
+                          color: statLabelColor,
+                          textTransform: "uppercase",
+                          letterSpacing: "0.5px",
+                        }}
+                      >
+                        {story.heroStatLabel}
+                      </span>
+                    </div>
+                  )}
                 </>
               ) : (
                 <>
@@ -881,54 +889,56 @@ export default function TileGrid({
                   </p>
 
                   {/* Hero stat with count-up animation */}
-                  <div style={{ marginTop: 18 }}>
-                    <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: 4,
-                      }}
-                    >
-                      <span
-                        style={{
-                          fontFamily: "var(--font-heading)",
-                          fontSize: "clamp(28px, 3vw, 38px)",
-                          fontWeight: 800,
-                          color: `var(${accentVar})`,
-                          letterSpacing: "-0.5px",
-                          lineHeight: 1,
-                        }}
-                      >
-                        <TileCountUp
-                          stat={story.heroStat}
-                          delay={counterDelay}
-                        />
-                      </span>
-                      {/* Accent underline bar */}
+                  {story.heroStat && (
+                    <div style={{ marginTop: 18 }}>
                       <div
                         style={{
-                          width: 40,
-                          height: 2,
-                          background: `var(${accentVar})`,
-                          opacity: 0.5,
-                          borderRadius: 1,
-                          marginTop: 2,
-                          marginBottom: 4,
-                        }}
-                      />
-                      <span
-                        style={{
-                          fontFamily: "var(--font-body)",
-                          fontSize: 14,
-                          color: "var(--aph-gold)",
-                          textTransform: "uppercase",
-                          letterSpacing: "0.5px",
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 4,
                         }}
                       >
-                        {story.heroStatLabel}
-                      </span>
+                        <span
+                          style={{
+                            fontFamily: "var(--font-heading)",
+                            fontSize: "clamp(28px, 3vw, 38px)",
+                            fontWeight: 800,
+                            color: `var(${accentVar})`,
+                            letterSpacing: "-0.5px",
+                            lineHeight: 1,
+                          }}
+                        >
+                          <TileCountUp
+                            stat={story.heroStat}
+                            delay={counterDelay}
+                          />
+                        </span>
+                        {/* Accent underline bar */}
+                        <div
+                          style={{
+                            width: 40,
+                            height: 2,
+                            background: `var(${accentVar})`,
+                            opacity: 0.5,
+                            borderRadius: 1,
+                            marginTop: 2,
+                            marginBottom: 4,
+                          }}
+                        />
+                        <span
+                          style={{
+                            fontFamily: "var(--font-body)",
+                            fontSize: 14,
+                            color: "var(--aph-gold)",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.5px",
+                          }}
+                        >
+                          {story.heroStatLabel}
+                        </span>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </>
               )}
             </button>

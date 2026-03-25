@@ -6,7 +6,9 @@ export function useIdleTimer(
 ) {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const callbackRef = useRef(onIdle);
-  callbackRef.current = onIdle;
+  useEffect(() => {
+    callbackRef.current = onIdle;
+  });
 
   const reset = useCallback(() => {
     if (timerRef.current) {

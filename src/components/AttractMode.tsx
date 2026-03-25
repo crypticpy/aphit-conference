@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import type { TileStory } from "../data/stories";
+import type { TileStory, AttractStat } from "../data/types";
 import { WordReveal } from "./shared/WordReveal";
 import { attractConfig } from "../config";
 
@@ -13,7 +13,7 @@ import GradientWaves from "./scenes/GradientWaves";
 // ═══════════════════════════════════════════════════════════════════════════
 
 interface Props {
-  facts: string[];
+  stats: AttractStat[];
   stories: TileStory[];
   onInteract: () => void;
   onHeroBeat?: () => void;
@@ -165,7 +165,7 @@ function ParticlesScene({ fact, visible }: { fact: string; visible: boolean }) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export default function AttractMode({
-  facts,
+  stats,
   stories,
   onInteract,
   onHeroBeat,
@@ -175,9 +175,9 @@ export default function AttractMode({
   const [transitioning, setTransitioning] = useState(false);
 
   // Content indices
-  const factIndexRef = useRef(0);
-  const storyIndexRef = useRef(0);
-  const [currentFact, setCurrentFact] = useState(facts[0] || "");
+  const statIndexRef = useRef(0);
+  const storyIndexRef = useRef(stories.length - 1);
+  const [currentStat, setCurrentStat] = useState<AttractStat>(stats[0]);
   const [currentStory, setCurrentStory] = useState(stories[0]);
   const [contentVisible, setContentVisible] = useState(false);
 
@@ -222,8 +222,8 @@ export default function AttractMode({
         setCurrentStory(stories[storyIndexRef.current]);
         onHeroBeatRef.current?.();
       } else {
-        factIndexRef.current = (factIndexRef.current + 1) % facts.length;
-        setCurrentFact(facts[factIndexRef.current]);
+        statIndexRef.current = (statIndexRef.current + 1) % stats.length;
+        setCurrentStat(stats[statIndexRef.current]);
       }
 
       // Start crossfade
@@ -256,6 +256,7 @@ export default function AttractMode({
   }, []);
 
   const activeScene = SCENE_SEQUENCE[activeSceneIndex];
+  const currentFact = `${currentStat.value} ${currentStat.label}`;
 
   return (
     <div
@@ -345,10 +346,10 @@ export default function AttractMode({
       >
         {(activeScene === "numberStorm" ||
           (prevSceneIndex === 1 && transitioning)) &&
-          currentStory && (
+          currentStory?.heroStat && (
             <NumberStorm
               stat={currentStory.heroStat}
-              label={currentStory.heroStatLabel}
+              label={currentStory.heroStatLabel ?? ""}
               accentColor={currentStory.accentColor}
             />
           )}

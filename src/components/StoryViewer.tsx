@@ -6,7 +6,7 @@ import {
   ChevronRight,
   type LucideIcon,
 } from "lucide-react";
-import type { TileStory } from "../data/stories";
+import type { TileStory } from "../data/types";
 import { iconMap } from "./shared/iconMap";
 import { modeConfig, breakpoints, transitionConfig } from "../config";
 import { useMediaQuery } from "../hooks/useMediaQuery";
@@ -88,19 +88,17 @@ function ProgressTimerBar({
   accentVar: string;
   durationMs: number;
 }) {
-  const [width, setWidth] = useState("0%");
-  const [transition, setTransition] = useState("none");
+  const barRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Reset to 0 with no transition
-    setTransition("none");
-    setWidth("0%");
-
-    // Force a reflow then animate to 100%
+    const el = barRef.current;
+    if (!el) return;
+    el.style.transition = "none";
+    el.style.width = "0%";
     const raf = requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        setTransition(`width ${durationMs / 1000}s linear`);
-        setWidth("100%");
+        el.style.transition = `width ${durationMs / 1000}s linear`;
+        el.style.width = "100%";
       });
     });
     return () => cancelAnimationFrame(raf);
@@ -120,11 +118,10 @@ function ProgressTimerBar({
       }}
     >
       <div
+        ref={barRef}
         style={{
           height: "100%",
-          width,
           background: `var(${accentVar})`,
-          transition,
         }}
       />
     </div>
@@ -273,12 +270,6 @@ export default function StoryViewer({
 
   /* ---- last-slide return warning ---- */
   useEffect(() => {
-    if (returnWarningTimerRef.current) {
-      clearTimeout(returnWarningTimerRef.current);
-      returnWarningTimerRef.current = null;
-    }
-    setShowReturnWarning(false);
-
     if (isLastSlide && cfg.showReturnWarning && cfg.autoAdvance) {
       returnWarningTimerRef.current = setTimeout(() => {
         setShowReturnWarning(true);
@@ -287,7 +278,9 @@ export default function StoryViewer({
     return () => {
       if (returnWarningTimerRef.current) {
         clearTimeout(returnWarningTimerRef.current);
+        returnWarningTimerRef.current = null;
       }
+      setShowReturnWarning(false);
     };
   }, [currentSlide, isLastSlide, cfg.showReturnWarning, cfg.autoAdvance]);
 
@@ -526,21 +519,6 @@ export default function StoryViewer({
             </span>
           </div>
         )}
-
-        {/* Right: slide counter */}
-        <span
-          style={{
-            fontFamily: "var(--font-heading)",
-            fontSize: 16,
-            fontWeight: 500,
-            color: "var(--aph-warm-gray)",
-            letterSpacing: "1px",
-            minWidth: 48,
-            textAlign: "right",
-          }}
-        >
-          {currentSlide + 1} / {totalSlides}
-        </span>
       </div>
 
       {/* Slide content area */}
@@ -843,7 +821,7 @@ function HeroSlide({
   accentVar: string;
   isMobile: boolean;
 }) {
-  const parsed = parseHeroStat(story.heroStat);
+  const parsed = story.heroStat ? parseHeroStat(story.heroStat) : null;
 
   return (
     <div
@@ -894,83 +872,89 @@ function HeroSlide({
         </span>
       </div>
 
-      {/* Giant hero stat with pulsing glow */}
-      <div
-        style={{
-          position: "relative",
-          animation:
-            "sv-countUp 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s both",
-        }}
-      >
-        {/* Pulsing glow behind the stat */}
-        <div
-          style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: "calc(100% + 200px)",
-            height: "calc(100% + 100px)",
-            background: `radial-gradient(ellipse at center, var(${accentVar}), transparent 70%)`,
-            filter: "blur(40px)",
-            animation: "sv-heroGlow 3s ease-in-out infinite",
-            pointerEvents: "none",
-          }}
-        />
-        <span
-          style={{
-            position: "relative",
-            fontFamily: "var(--font-heading)",
-            fontStyle: "normal",
-            fontSize: "clamp(48px, 14vw, 160px)",
-            fontWeight: 900,
-            lineHeight: 1,
-            letterSpacing: "-3px",
-            background: `linear-gradient(135deg, var(${accentVar}), color-mix(in srgb, var(${accentVar}) 55%, white))`,
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            backgroundClip: "text",
-          }}
-        >
-          {parsed ? (
-            <CountUp
-              target={parsed.target}
-              suffix={parsed.suffix}
-              duration={2000}
+      {story.heroStat ? (
+        <>
+          {/* Giant hero stat with pulsing glow */}
+          <div
+            style={{
+              position: "relative",
+              animation:
+                "sv-countUp 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s both",
+            }}
+          >
+            {/* Pulsing glow behind the stat */}
+            <div
+              style={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                width: "calc(100% + 200px)",
+                height: "calc(100% + 100px)",
+                background: `radial-gradient(ellipse at center, var(${accentVar}), transparent 70%)`,
+                filter: "blur(40px)",
+                animation: "sv-heroGlow 3s ease-in-out infinite",
+                pointerEvents: "none",
+              }}
             />
-          ) : (
-            story.heroStat
-          )}
-        </span>
-      </div>
+            <span
+              style={{
+                position: "relative",
+                fontFamily: "var(--font-heading)",
+                fontStyle: "normal",
+                fontSize: "clamp(48px, 14vw, 160px)",
+                fontWeight: 900,
+                lineHeight: 1,
+                letterSpacing: "-3px",
+                background: `linear-gradient(135deg, var(${accentVar}), color-mix(in srgb, var(${accentVar}) 55%, white))`,
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+              }}
+            >
+              {parsed ? (
+                <CountUp
+                  target={parsed.target}
+                  suffix={parsed.suffix}
+                  duration={2000}
+                />
+              ) : (
+                story.heroStat
+              )}
+            </span>
+          </div>
 
-      {/* Hero stat label */}
-      <div
-        style={{
-          fontFamily: "var(--font-heading)",
-          fontSize: "clamp(18px, 2.5vw, 28px)",
-          fontWeight: 600,
-          textTransform: "uppercase",
-          letterSpacing: "3px",
-          color: "var(--aph-warm-gray)",
-          marginTop: 28,
-          animation: "sv-fadeIn 0.6s ease 0.35s both",
-        }}
-      >
-        {story.heroStatLabel}
-      </div>
+          {/* Hero stat label */}
+          <div
+            style={{
+              fontFamily: "var(--font-heading)",
+              fontSize: "clamp(18px, 2.5vw, 28px)",
+              fontWeight: 600,
+              textTransform: "uppercase",
+              letterSpacing: "3px",
+              color: "var(--aph-warm-gray)",
+              marginTop: 28,
+              animation: "sv-fadeIn 0.6s ease 0.35s both",
+            }}
+          >
+            {story.heroStatLabel}
+          </div>
 
-      {/* Thin separator — visual pause between stat and tagline */}
-      <div
-        style={{
-          width: 48,
-          height: 2,
-          background: "rgba(255,255,255,0.15)",
-          margin: "20px auto 0",
-          borderRadius: 1,
-          animation: "sv-fadeIn 0.6s ease 0.4s both",
-        }}
-      />
+          {/* Thin separator — visual pause between stat and tagline */}
+          <div
+            style={{
+              width: 48,
+              height: 2,
+              background: "rgba(255,255,255,0.15)",
+              margin: "20px auto 0",
+              borderRadius: 1,
+              animation: "sv-fadeIn 0.6s ease 0.4s both",
+            }}
+          />
+        </>
+      ) : (
+        <div style={{ marginTop: 24 }} />
+      )}
 
       {/* Tagline */}
       <div
@@ -1018,7 +1002,6 @@ function SectionSlide({
   accentVar: string;
   isMobile: boolean;
 }) {
-  const sectionNumber = String(index + 1).padStart(2, "0");
   // Odd sections (index 0, 2 → sections 1, 3) are left-aligned
   // Even sections (index 1, 3 → sections 2, 4) are center-aligned
   const isOddSection = index % 2 === 0; // index 0 = section 1 (odd), index 1 = section 2 (even)
@@ -1050,23 +1033,6 @@ function SectionSlide({
           }}
         />
       )}
-
-      {/* Section number */}
-      <div
-        style={{
-          fontFamily: "var(--font-heading)",
-          fontSize: isMobile ? 36 : 72,
-          fontWeight: 400,
-          fontStyle: "italic" as const,
-          color: "var(--aph-warm-gray)",
-          opacity: 0.3,
-          lineHeight: 1,
-          marginBottom: 24,
-          animation: "sv-fadeIn 0.6s ease 0ms both",
-        }}
-      >
-        {sectionNumber}
-      </div>
 
       {/* Section title */}
       <h2
@@ -1135,6 +1101,7 @@ function SectionSlide({
           lineHeight: 1.6,
           maxWidth: 780,
           whiteSpace: "pre-line",
+          textAlign: "left",
           animation: "sv-fadeIn 0.6s ease 150ms both",
         }}
       >
