@@ -557,21 +557,36 @@ export default function StoryViewer({
             top: "50%",
             transform: "translateY(-50%)",
             zIndex: 10,
-            width: isMobile ? 36 : 48,
+            minWidth: isMobile ? 36 : 56,
             height: isMobile ? 36 : 48,
             borderRadius: 8,
-            border: "1px solid rgba(255,255,255,0.1)",
-            background: "rgba(255,255,255,0.06)",
-            color: "rgba(255,255,255,0.5)",
+            border: "1px solid rgba(255,255,255,0.15)",
+            background: "rgba(255,255,255,0.12)",
+            color: "rgba(255,255,255,0.7)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            gap: 4,
+            padding: "0 12px",
             cursor: "pointer",
             transition:
               "background 0.2s ease, border-color 0.2s ease, color 0.15s ease",
           }}
         >
-          <ChevronLeft size={22} />
+          <ChevronLeft size={18} />
+          {!isMobile && (
+            <span
+              style={{
+                fontFamily: "var(--font-heading)",
+                fontSize: 12,
+                fontWeight: 600,
+                letterSpacing: "0.5px",
+                textTransform: "uppercase",
+              }}
+            >
+              Back
+            </span>
+          )}
         </button>
       )}
 
@@ -591,133 +606,38 @@ export default function StoryViewer({
             top: "50%",
             transform: "translateY(-50%)",
             zIndex: 10,
-            width: isMobile ? 36 : 48,
+            minWidth: isMobile ? 36 : 56,
             height: isMobile ? 36 : 48,
             borderRadius: 8,
-            border: "1px solid rgba(255,255,255,0.1)",
-            background: "rgba(255,255,255,0.06)",
-            color: "rgba(255,255,255,0.5)",
+            border: "1px solid rgba(255,255,255,0.15)",
+            background: "rgba(255,255,255,0.12)",
+            color: "rgba(255,255,255,0.7)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            gap: 4,
+            padding: "0 12px",
             cursor: "pointer",
             transition:
               "background 0.2s ease, border-color 0.2s ease, color 0.15s ease",
           }}
         >
-          <ChevronRight size={22} />
+          {!isMobile && (
+            <span
+              style={{
+                fontFamily: "var(--font-heading)",
+                fontSize: 12,
+                fontWeight: 600,
+                letterSpacing: "0.5px",
+                textTransform: "uppercase",
+              }}
+            >
+              {isLastSlide ? "Done" : "Next"}
+            </span>
+          )}
+          <ChevronRight size={18} />
         </button>
       }
-
-      {/* QR code placeholder (bottom-right) — hidden on mobile */}
-      {!isMobile && (
-        <div
-          style={{
-            position: "absolute",
-            bottom: 56,
-            right: 32,
-            zIndex: 10,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            pointerEvents: "none",
-          }}
-        >
-          {/* "Learn More" micro-label */}
-          <span
-            style={{
-              fontFamily: "var(--font-heading)",
-              fontSize: 9,
-              color: "rgba(255,255,255,0.25)",
-              letterSpacing: "1.5px",
-              textTransform: "uppercase",
-              marginBottom: 4,
-            }}
-          >
-            Learn More
-          </span>
-          <svg
-            width={48}
-            height={48}
-            viewBox="0 0 48 48"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            style={{ opacity: 0.35 }}
-          >
-            <rect
-              x={0}
-              y={0}
-              width={48}
-              height={48}
-              rx={8}
-              fill="rgba(255,255,255,0.9)"
-            />
-            {/* Top-left finder pattern */}
-            <rect
-              x={4}
-              y={4}
-              width={14}
-              height={14}
-              rx={2}
-              stroke="#111"
-              strokeWidth={2.5}
-              fill="none"
-            />
-            <rect x={7} y={7} width={8} height={8} rx={1} fill="#111" />
-            {/* Top-right finder pattern */}
-            <rect
-              x={30}
-              y={4}
-              width={14}
-              height={14}
-              rx={2}
-              stroke="#111"
-              strokeWidth={2.5}
-              fill="none"
-            />
-            <rect x={33} y={7} width={8} height={8} rx={1} fill="#111" />
-            {/* Bottom-left finder pattern */}
-            <rect
-              x={4}
-              y={30}
-              width={14}
-              height={14}
-              rx={2}
-              stroke="#111"
-              strokeWidth={2.5}
-              fill="none"
-            />
-            <rect x={7} y={33} width={8} height={8} rx={1} fill="#111" />
-            {/* Data modules */}
-            <rect x={22} y={4} width={4} height={4} fill="#111" />
-            <rect x={22} y={12} width={4} height={4} fill="#111" />
-            <rect x={22} y={22} width={4} height={4} fill="#111" />
-            <rect x={30} y={22} width={4} height={4} fill="#111" />
-            <rect x={38} y={22} width={4} height={4} fill="#111" />
-            <rect x={22} y={30} width={4} height={4} fill="#111" />
-            <rect x={30} y={30} width={4} height={4} fill="#111" />
-            <rect x={38} y={30} width={4} height={4} fill="#111" />
-            <rect x={22} y={38} width={4} height={4} fill="#111" />
-            <rect x={30} y={38} width={4} height={4} fill="#111" />
-            <rect x={38} y={38} width={4} height={4} fill="#111" />
-            <rect x={4} y={22} width={4} height={4} fill="#111" />
-            <rect x={12} y={22} width={4} height={4} fill="#111" />
-          </svg>
-          <span
-            style={{
-              fontFamily: "var(--font-heading)",
-              fontSize: 11,
-              fontWeight: 600,
-              color: "rgba(255,255,255,0.4)",
-              marginTop: 5,
-              letterSpacing: "0.5px",
-              textTransform: "uppercase",
-            }}
-          >
-            austinpublichealth.org/hit
-          </span>
-        </div>
-      )}
 
       {/* Return warning text */}
       {showReturnWarning && cfg.showReturnWarning && (
